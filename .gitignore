@@ -70,3 +70,4 @@ step1.json
 # Large data files
 *.bak
 *.backup
+centralized_step_logs.json
