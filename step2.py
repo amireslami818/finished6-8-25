@@ -16,6 +16,94 @@ Example:
 
 This structure contains odds for asia, eu, and bs (bookmakers).
 
+ODDS DATA STRUCTURE AND FILTERING:
+----------------------------------
+Each odds array contains 8 elements: [timestamp, minute, val1, val2, val3, status, sealed, score]
+- [0] timestamp: Unix timestamp when odds were recorded
+- [1] minute: Match minute (string) - we filter for minutes 2-6
+- [2] val1: First odds value (varies by type)
+- [3] val2: Second odds value (Handicap/Total)
+- [4] val3: Third odds value (varies by type)
+- [5] status: Match status code
+- [6] sealed: Whether odds are sealed (0=No, 1=Yes)
+- [7] score: Current score as "home-away"
+
+ODDS TYPES (renamed for clarity):
+---------------------------------
+1. Money Line (formerly 'eu' - European odds):
+   - val1: Home win odds
+   - val2: Draw odds  
+   - val3: Away win odds
+   
+2. Spread (formerly 'asia' - Asian Handicap):
+   - val1: Home team odds
+   - val2: Handicap (positive=home gives, negative=away gives)
+   - val3: Away team odds
+   
+3. Over/Under (formerly 'bs' - Ball Size/Total Goals):
+   - val1: Over odds
+   - val2: Total goals line
+   - val3: Under odds
+   
+4. Corners (formerly 'cr' - Corner kicks):
+   - val1: Over odds
+   - val2: Total corners line
+   - val3: Under odds
+
+IMPORTANT: ODDS FORMATS
+-----------------------
+The API returns odds in two different formats depending on the market:
+
+1. MONEY LINE (eu) - Uses DECIMAL ODDS (European format):
+   - Always ≥ 1.00 (includes your stake)
+   - Examples: 1.66, 3.40, 6.00
+   - To calculate payout: bet_amount × decimal_odds = total_return
+
+2. SPREAD, OVER/UNDER, CORNERS (asia, bs, cr) - Use HONG KONG ODDS:
+   - Shows profit per 1 unit bet (excludes stake)
+   - Can be < 1.00 (when profit is less than stake)
+   - Examples: 0.77, 0.85, 0.90, 1.50
+   - To calculate payout: bet_amount × (1 + hk_odds) = total_return
+
+How to identify the format:
+- Any odds value < 1.00 MUST be Hong Kong format
+- Money Line channel (eu) ALWAYS uses Decimal format
+- Spread/O-U/Corners channels (asia/bs/cr) ALWAYS use Hong Kong format
+
+ODDS CONVERSION FORMULAS
+------------------------
+Converting to American Odds format:
+
+1. DECIMAL ODDS → AMERICAN ODDS
+   Let D = decimal odd (D ≥ 1.00)
+   
+   If D ≥ 2.00:
+       American = +(D - 1) × 100
+   
+   If 1.00 ≤ D < 2.00:
+       American = -100 / (D - 1)
+   
+   Examples:
+   - D = 3.50: (3.50 - 1) × 100 = +250
+   - D = 1.66: -100 / (1.66 - 1) = -152
+
+2. HONG KONG ODDS → AMERICAN ODDS
+   Let H = Hong Kong odd (profit per 1 unit)
+   
+   If H ≥ 1.00:
+       American = +H × 100
+   
+   If 0 < H < 1.00:
+       American = -100 / H
+   
+   Examples:
+   - H = 1.50: 1.50 × 100 = +150
+   - H = 0.85: -100 / 0.85 = -118
+
+CONVERSION SUMMARY:
+- Money Line: Use Decimal → American conversion
+- Spread, O/U, Corners: Use Hong Kong → American conversion
+
 ODDS FILTERING LOGIC:
 --------------------
 Step 2 filters the odds data to only keep entries from the early minutes of each match:
@@ -111,8 +199,71 @@ ENDPOINT 6: /country/list (country)
 - id (country id)
 - category_id
 - name
-"""
 
+Step 2: Process and merge football match data
+==============================================
+
+Reads step1.json and creates merged summaries with enriched data.
+
+IMPORTANT ODDS FIELD UPDATES (June 8, 2025):
+============================================
+We have renamed the odds fields from their original API names to more descriptive, user-friendly names.
+This makes the data more intuitive and self-documenting.
+
+FIELD NAME MAPPINGS (API → Our Names):
+--------------------------------------
+- "eu" → "money_line" (European odds / Money Line / ML)
+- "asia" → "spread" (Asian Handicap / Spread betting)  
+- "bs" → "over_under" (Ball Size / Over-Under / O/U / OU / Total Goals)
+- "cr" → "corners" (Corner kick totals)
+
+You can identify these fields by either name:
+- Money Line = EU = European odds = ML
+- Spread = ASIA = Asian Handicap
+- Over/Under = BS = Ball Size = O/U = OU = Total Goals
+- Corners = CR = Corner kicks
+
+OUTPUT STRUCTURE CHANGES:
+------------------------
+Previously: Nested "odds" object containing all odds types
+Now: Flat fields at the root level of each match summary:
+  - money_line: Array of money line odds entries
+  - spread: Array of spread betting entries  
+  - over_under: Array of over/under entries
+  - corners: Array of corner totals entries
+  - odds_company_id: Selected company ID (e.g., "2" for BET365)
+  - odds_company_name: Company name (e.g., "BET365")
+
+ARRAY STRUCTURE (8 elements for each odds entry):
+-------------------------------------------------
+[0] Timestamp: Unix timestamp when odds were recorded
+[1] Match minute: String value (we filter for minutes "2" through "6")
+[2] First value: Varies by odds type
+    - Money Line: Home win odds
+    - Spread: Home team odds
+    - Over/Under: Over odds
+    - Corners: Over odds
+[3] Second value: The line/handicap
+    - Money Line: Draw odds
+    - Spread: Handicap (positive=home gives, negative=away gives)
+    - Over/Under: Total goals line
+    - Corners: Total corners line
+[4] Third value: Varies by odds type
+    - Money Line: Away win odds
+    - Spread: Away team odds
+    - Over/Under: Under odds
+    - Corners: Under odds
+[5] Match status: Integer status code
+[6] Sealed: 0=Not sealed, 1=Sealed
+[7] Score: Current score as "home-away" string
+
+FILTERING AND SELECTION:
+-----------------------
+- Only odds from minutes 2-6 are included (minute 1 and 7+ are filtered out)
+- Only ONE betting company is selected per match (BET365 is preferred)
+- If multiple odds exist for the same minute, only the latest is kept
+
+"""
 import json
 import logging
 from datetime import datetime
@@ -176,17 +327,18 @@ def extract_summary_fields(match: dict) -> dict:
     }
 
 def extract_odds(match: dict) -> dict:
-    """Extract betting odds from match data."""
+    """Extract odds data from match, mapping API field names to descriptive names."""
     odds_data = {}
     if "odds" in match and isinstance(match["odds"], dict):
         # Odds are organized by company ID
         for company_id, company_odds in match["odds"].items():
             if isinstance(company_odds, dict):
+                # Map old field names to new descriptive names
                 odds_data[company_id] = {
-                    "asia": company_odds.get("asia", []),
-                    "bs": company_odds.get("bs", []),
-                    "eu": company_odds.get("eu", []),
-                    "cr": company_odds.get("cr", [])
+                    "money_line": company_odds.get("eu", []),      # European/Money Line odds
+                    "spread": company_odds.get("asia", []),        # Asian Handicap/Spread
+                    "over_under": company_odds.get("bs", []),      # Ball Size/Over-Under
+                    "corners": company_odds.get("cr", [])          # Corner totals
                 }
     return odds_data
 
@@ -198,7 +350,7 @@ def extract_environment(match: dict) -> dict:
             "weather": env.get("weather", ""),
             "temperature": env.get("temperature", ""),
             "humidity": env.get("humidity", ""),
-            "wind_speed": env.get("wind_speed", ""),
+            "wind_speed": env.get("wind", ""),  # Field is "wind" not "wind_speed" in the data
             "pressure": env.get("pressure", "")
         }
     return {}
@@ -207,6 +359,103 @@ def extract_events(match: dict) -> list:
     """Extract match events if available."""
     return match.get("events", [])
 
+def convert_decimal_to_american(decimal_odd):
+    """Convert decimal odds to American odds format."""
+    try:
+        d = float(decimal_odd)
+        if d >= 2.00:
+            # Positive American odds
+            return int(round((d - 1) * 100))
+        elif d >= 1.00:
+            # Negative American odds
+            return int(round(-100 / (d - 1)))
+        else:
+            # Invalid decimal odd (should be >= 1.00)
+            return None
+    except (ValueError, TypeError, ZeroDivisionError):
+        return None
+
+def convert_hong_kong_to_american(hk_odd):
+    """Convert Hong Kong odds to American odds format."""
+    try:
+        h = float(hk_odd)
+        if h >= 1.00:
+            # Positive American odds
+            return int(round(h * 100))
+        elif h > 0:
+            # Negative American odds
+            return int(round(-100 / h))
+        else:
+            # Invalid HK odd (should be > 0)
+            return None
+    except (ValueError, TypeError, ZeroDivisionError):
+        return None
+
+def convert_odds_array(odds_array, odds_type):
+    """
+    Convert an odds array to include American odds format.
+    Returns the original array plus a converted array.
+    
+    Args:
+        odds_array: List of odds arrays
+        odds_type: 'money_line', 'spread', 'over_under', or 'corners'
+    
+    Returns:
+        Tuple of (original_array, american_array)
+    """
+    american_arrays = []
+    
+    for odds_entry in odds_array:
+        if len(odds_entry) >= 8:
+            # Extract the original values
+            timestamp = odds_entry[0]
+            minute = odds_entry[1]
+            val1 = odds_entry[2]
+            val2 = odds_entry[3]
+            val3 = odds_entry[4]
+            status = odds_entry[5]
+            sealed = odds_entry[6]
+            score = odds_entry[7]
+            
+            # Convert based on odds type
+            if odds_type == "money_line":
+                # Money Line uses decimal odds
+                american1 = convert_decimal_to_american(val1)
+                american2 = convert_decimal_to_american(val2)
+                american3 = convert_decimal_to_american(val3)
+            else:
+                # Spread, Over/Under, Corners use Hong Kong odds
+                american1 = convert_hong_kong_to_american(val1)
+                american3 = convert_hong_kong_to_american(val3)
+                # val2 is the handicap/total line, not an odd
+                american2 = val2
+            
+            # Format American odds with proper sign
+            def format_american(value, is_middle_value=False):
+                if value is None:
+                    return value
+                # For spread/over-under/corners, the middle value is the line, not odds
+                if is_middle_value and odds_type != "money_line":
+                    return value  # Keep handicap/line as numeric
+                if isinstance(value, (int, float)):
+                    return f"+{int(value)}" if value > 0 else str(int(value))
+                return value
+            
+            # Create American odds array
+            american_entry = [
+                timestamp,
+                minute,
+                format_american(american1),
+                format_american(american2, is_middle_value=True),
+                format_american(american3),
+                status,
+                sealed,
+                score
+            ]
+            american_arrays.append(american_entry)
+    
+    return odds_array, american_arrays
+
 def filter_odds_by_minutes(odds_data, min_minute=2, max_minute=6):
     """
     Filter odds arrays to only keep entries where the minute field (second field) 
@@ -214,7 +463,7 @@ def filter_odds_by_minutes(odds_data, min_minute=2, max_minute=6):
     For multiple entries in the same minute, keep only the last one (highest timestamp).
     
     Args:
-        odds_data: The odds data structure (dict with asia, bs, eu, cr arrays)
+        odds_data: The odds data structure (dict with money_line, spread, over_under, corners arrays(dict with asia, bs, eu, cr arrays))
         min_minute: Minimum minute value to keep (as integer)
         max_minute: Maximum minute value to keep (as integer)
     
@@ -223,7 +472,7 @@ def filter_odds_by_minutes(odds_data, min_minute=2, max_minute=6):
     """
     filtered_odds = {}
     
-    for odds_type in ['asia', 'bs', 'eu', 'cr']:
+    for odds_type in ['money_line', 'spread', 'over_under', 'corners']:
         if odds_type in odds_data:
             # First, collect all valid entries grouped by minute
             minute_entries = {}
@@ -371,6 +620,7 @@ def merge_and_summarize(live_matches: list, match_details: dict, match_odds: dic
         
         # Extract summary fields
         summary = extract_summary_fields(match)
+        summary["status"] = match.get("status_id", 0)
         
         # Extract and filter odds - select only one betting company
         raw_odds = extract_odds(match)
@@ -382,7 +632,7 @@ def merge_and_summarize(live_matches: list, match_details: dict, match_odds: dic
             if company_id in raw_odds and raw_odds[company_id]:
                 # Check if this company has any odds data
                 has_data = False
-                for odds_type in ['asia', 'bs', 'eu']:
+                for odds_type in ['money_line', 'spread', 'over_under']:
                     if raw_odds[company_id].get(odds_type):
                         has_data = True
                         break
@@ -394,13 +644,28 @@ def merge_and_summarize(live_matches: list, match_details: dict, match_odds: dic
         
         # Set the selected odds and company info
         if selected_company_id:
-            summary["odds"] = selected_odds
+            # PRIORITIZED: Descriptive field names at the top level come FIRST
+            summary["money_line"], summary["money_line_american"] = convert_odds_array(selected_odds.get("money_line", []), "money_line")
+            summary["spread"], summary["spread_american"] = convert_odds_array(selected_odds.get("spread", []), "spread")
+            summary["over_under"], summary["over_under_american"] = convert_odds_array(selected_odds.get("over_under", []), "over_under")
+            summary["corners"], summary["corners_american"] = convert_odds_array(selected_odds.get("corners", []), "corners")
             summary["odds_company_id"] = selected_company_id
             summary["odds_company_name"] = BETTING_COMPANIES.get(selected_company_id, f"Company {selected_company_id}")
+            
+            # Keep the original odds structure with selected company only (AFTER new fields)
+            summary["odds"] = {selected_company_id: selected_odds}
         else:
-            summary["odds"] = {}
+            summary["money_line"] = []
+            summary["money_line_american"] = []
+            summary["spread"] = []
+            summary["spread_american"] = []
+            summary["over_under"] = []
+            summary["over_under_american"] = []
+            summary["corners"] = []
+            summary["corners_american"] = []
             summary["odds_company_id"] = None
             summary["odds_company_name"] = None
+            summary["odds"] = {}
         
         summary["environment"] = extract_environment(match)
         summary["events"] = extract_events(match)

@@ -1,0 +1,85 @@
+STEP2.PY KEY MAPPINGS SUMMARY
+=============================
+
+ODDS FIELD RENAMING:
+-------------------
+API Name  →  Our Name         Description
+--------     ---------        -----------
+eu        →  money_line       European odds (home win, draw, away win)
+asia      →  spread           Asian Handicap (home odds, handicap, away odds)
+bs        →  over_under       Ball Size/Total goals (over odds, total, under odds)
+cr        →  corners          Corner totals (over odds, total, under odds)
+
+KEY DATA PATHS:
+--------------
+Live Matches:     step1_data['live_matches']['results']
+Match Details:    step1_data['match_details'][match_id]['results']
+Match Odds:       step1_data['match_odds'][match_id]['results'][company_id]
+Team Info:        step1_data['team_info'][team_id]['results'][0]
+Competition Info: step1_data['competition_info'][comp_id]['results'][0]
+Countries:        step1_data['countries']['results'] (list)
+
+MATCH FIELD ACCESS:
+------------------
+match['id']                           → match_id
+match['home']['name']                 → home team name
+match['away']['name']                 → away team name
+match['home']['id']                   → home_id
+match['away']['id']                   → away_id
+match['home_scores']                  → home score
+match['away_scores']                  → away score
+match['league']['id']                 → competition_id
+match['league']['name']               → competition name
+match['league']['country_name']       → country name
+match['status_id']                    → status_id
+match['match_time']                   → kickoff timestamp
+match['venue']                        → venue name
+
+ENRICHMENT LOOKUPS:
+------------------
+team_info[team_id]['results'][0]['name']              → Team name
+competition_info[comp_id]['results'][0]['name']       → Competition name
+competition_info[comp_id]['results'][0]['country_id'] → Country ID
+countries[country_id]['name']                         → Country name
+
+OUTPUT FIELD ORDER (step2.json):
+-------------------------------
+1. money_line[]         (PRIORITIZED - renamed odds)
+2. spread[]             (PRIORITIZED - renamed odds)
+3. over_under[]         (PRIORITIZED - renamed odds)
+4. corners[]            (PRIORITIZED - renamed odds)
+5. odds_company_id      (PRIORITIZED - betting company)
+6. odds_company_name    (PRIORITIZED - company name)
+7. odds{}               (Original nested structure)
+8. match_id
+9. home, away
+10. home_id, away_id
+11. score
+12. status_id, status
+13. competition, competition_id
+14. country
+15. match_time, kickoff
+16. venue
+17. home_position, away_position
+18. environment{}
+19. events[]
+
+BETTING COMPANIES:
+-----------------
+ID   Name
+--   ----
+2    BET365 (PREFERRED)
+3    Crown
+4    Ladbrokes
+5    William Hill
+9    Betfair
+10   10BET
+13   SBOBET
+15   Pinnacle
+22   Coral
+
+FILTERING RULES:
+---------------
+- Odds: Keep only minutes 2-6 (inclusive)
+- Company: Select one per match (BET365 preferred)
+- Latest: Keep only most recent entry per minute

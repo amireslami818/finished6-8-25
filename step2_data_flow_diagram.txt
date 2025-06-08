@@ -1,0 +1,96 @@
+STEP2.PY DATA FLOW DIAGRAM
+==========================
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              STEP1.JSON                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  live_matches.results[]         match_odds[match_id].results            │
+│  ├─ id                         ├─ company_id: {                        │
+│  ├─ status_id                  │    ├─ eu[]    → money_line[]         │
+│  └─ score                      │    ├─ asia[]  → spread[]             │
+│                                │    ├─ bs[]    → over_under[]         │
+│  match_details[match_id]       │    └─ cr[]    → corners[]            │
+│  ├─ home: {id, name}          └─ }                                    │
+│  ├─ away: {id, name}                                                   │
+│  ├─ league: {id, name}         team_info[team_id].results[0]          │
+│  ├─ venue                      ├─ name                                 │
+│  └─ environment                ├─ logo                                 │
+│                                └─ country_id                           │
+│                                                                         │
+│                                competition_info[comp_id].results[0]     │
+│                                ├─ name                                 │
+│                                └─ country_id                           │
+│                                                                         │
+│                                countries.results[]                     │
+│                                └─ {id, name, logo}                     │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           STEP2.PY PROCESSING                           │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  1. merge_and_summarize()                                              │
+│     ├─ For each live match:                                           │
+│     │   ├─ Enrich with match_details                                  │
+│     │   ├─ Enrich with team names from team_info                      │
+│     │   ├─ Enrich with competition name from competition_info         │
+│     │   └─ Enrich with country name from countries                    │
+│     │                                                                  │
+│     ├─ extract_summary_fields() → Basic match info                    │
+│     │                                                                  │
+│     ├─ extract_odds() → Rename fields:                                │
+│     │   ├─ eu → money_line                                           │
+│     │   ├─ asia → spread                                             │
+│     │   ├─ bs → over_under                                           │
+│     │   └─ cr → corners                                              │
+│     │                                                                  │
+│     ├─ Select one betting company (prefer BET365)                     │
+│     │                                                                  │
+│     ├─ filter_odds_by_minutes() → Keep minutes 2-6 only              │
+│     │                                                                  │
+│     ├─ extract_environment() → Weather data                           │
+│     │                                                                  │
+│     └─ extract_events() → Match events                                │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              STEP2.JSON                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  summaries[]                                                           │
+│  ├─ PRIORITIZED NEW FIELDS:                                           │
+│  │   ├─ money_line[]        (renamed from eu)                         │
+│  │   ├─ spread[]            (renamed from asia)                       │
+│  │   ├─ over_under[]        (renamed from bs)                         │
+│  │   ├─ corners[]           (renamed from cr)                         │
+│  │   ├─ odds_company_id     (e.g., "2")                              │
+│  │   └─ odds_company_name   (e.g., "BET365")                         │
+│  │                                                                     │
+│  ├─ ORIGINAL STRUCTURE:                                               │
+│  │   └─ odds: {company_id: {money_line, spread, over_under, corners}} │
+│  │                                                                     │
+│  ├─ MATCH DATA:                                                       │
+│  │   ├─ match_id, status_id                                          │
+│  │   ├─ home, away (team names)                                      │
+│  │   ├─ home_id, away_id                                             │
+│  │   ├─ score, match_time, kickoff                                   │
+│  │   ├─ competition, competition_id                                  │
+│  │   └─ country, venue                                               │
+│  │                                                                     │
+│  └─ ADDITIONAL:                                                       │
+│      ├─ environment {}                                                │
+│      └─ events []                                                     │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+KEY TRANSFORMATIONS:
+====================
+1. Odds field renaming (eu→money_line, asia→spread, bs→over_under, cr→corners)
+2. Single company selection per match (BET365 preferred)
+3. Minute filtering (keep only minutes 2-6)
+4. Field prioritization (new odds fields come first in output)
+5. Team/Competition/Country enrichment via ID lookups
