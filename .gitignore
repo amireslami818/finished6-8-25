@@ -71,3 +71,4 @@ step1.json
 *.bak
 *.backup
 centralized_step_logs.json
+centralized_step_logs.json
