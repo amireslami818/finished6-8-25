@@ -1,22 +1,10 @@
 {
   "step1_executions": 12,
-  "step2_executions": 144,
+  "step2_executions": 146,
   "last_step1_time": "06/08/2025 03:15:26 AM EDT",
-  "last_step2_time": "06/08/2025 05:27:45 AM EDT",
+  "last_step2_time": "06/08/2025 05:29:45 AM EDT",
   "total_errors": 0,
   "recent_activity": [
-    {
-      "timestamp": "06/08/2025 04:35:45 AM EDT",
-      "source": "step2",
-      "type": "SUCCESS",
-      "message": "Step 2 merge/flatten completed - 46 summaries created"
-    },
-    {
-      "timestamp": "06/08/2025 04:36:45 AM EDT",
-      "source": "step2",
-      "type": "SUCCESS",
-      "message": "Step 2 merge/flatten completed - 46 summaries created"
-    },
     {
       "timestamp": "06/08/2025 04:37:45 AM EDT",
       "source": "step2",
@@ -304,6 +292,18 @@
       "source": "step2",
       "type": "SUCCESS",
       "message": "Step 2 merge/flatten completed - 40 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 05:28:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 40 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 05:29:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
     }
   ]
 }
