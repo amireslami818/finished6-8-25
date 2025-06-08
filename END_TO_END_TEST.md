@@ -27,7 +27,7 @@ The `test_pipeline_flow.py` script is a comprehensive end-to-end integration tes
 - Confirms Step 1 API fetch completed successfully
 
 ### Phase 3: Monitor Step 2 Output  
-- Waits up to 60 seconds for `step27.json` to appear
+- Waits up to 60 seconds for `step2.json` to appear
 - Validates merge/flatten processing completed
 - Reports number of processed matches in latest batch
 
@@ -67,9 +67,9 @@ chmod +x test_pipeline_flow.py
 15:32:02 | Waiting up to 60s for 'step1.json' to appear…
 15:32:07 | ✓ 'step1.json' appeared after 5.0s.
 15:32:07 | 'step1.json' top-level keys: ['timestamp','live_matches','match_details','match_odds','team_info','competition_info', ...]
-15:32:08 | Waiting up to 60s for 'step27.json' to appear…
-15:32:15 | ✓ 'step27.json' appeared after 7.0s.
-15:32:15 | 'step27.json' keys: ['history','last_updated','step2_processing_summary']
+15:32:08 | Waiting up to 60s for 'step2.json' to appear…
+15:32:15 | ✓ 'step2.json' appeared after 7.0s.
+15:32:15 | 'step2.json' keys: ['history','last_updated','step2_processing_summary']
 15:32:15 | Latest batch has 12 flattened matches.
 15:32:16 | Waiting up to 60s for 'step7_matches.log' to appear…
 15:32:18 | ✓ 'step7_matches.log' appeared after 2.0s.
@@ -93,7 +93,7 @@ The test script uses these configurable parameters:
 
 ```python
 STEP1_JSON   = "step1.json"       # Step 1 output file
-STEP2_JSON   = "step27.json"      # Step 2 output file  
+STEP2_JSON   = "step2.json"      # Step 2 output file  
 STEP7_LOG    = "step7_matches.log" # Step 7 output file
 PID_FILE     = "step1.pid"        # Process lock file
 START_SCRIPT = "./start.sh"       # Pipeline control script

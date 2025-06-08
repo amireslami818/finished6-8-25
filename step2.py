@@ -1,5 +1,22 @@
 #!/usr/bin/env python3
 """
+🚨 WARNING FOR FUTURE AI CODING AGENTS 🚨
+==========================================
+DO NOT CREATE DUPLICATE SUMMARY KEYS IN JSON OUTPUTS!
+THIS PROJECT SUFFERED FROM "KEY UNIFORMITY PROBLEMS":
+
+❌ NEVER CREATE: step1_completion_summary, step1_detailed_summary, step2_completion_summary, etc.
+✅ ALWAYS USE: Single standardized "completion_summary" key across ALL JSON outputs
+✅ USE SHARED: create_completion_summary() function from step1.py
+
+KEY UNIFORMITY PROBLEM TERMS:
+- "Duplicate Summary Keys" - Multiple different key names for the same purpose  
+- "Legacy Summary Key Structures" - Old inconsistent naming patterns
+- "completion_summary Standardization" - Ensuring all files use the same key structure
+
+THIS IS THE BIGGEST PROBLEM WITH AI CODING AGENTS - AVOID RECREATING THIS ISSUE!
+==================================================================================
+
 STEP 2 - DATA MERGE AND FLATTEN
 ==============================
 
@@ -8,13 +25,27 @@ PURPOSE:
 Merges and flattens match data from step1.json, creating compact summaries
 and saving them to step2.json with historical tracking.
 
+LOGGING AND OUTPUT FILES:
+------------------------
+- **LOG OUTPUT**: Console logging via StreamHandler (no file logging)
+- **JSON OUTPUT**: step2.json (flattened match summaries with standardized completion_summary)
+- **INPUT SOURCE**: step1.json (from Step 1 processing)
+
+CURRENT LOGGER IMPLEMENTATION:
+-----------------------------
+- **INDEPENDENT LOGGING**: Uses StreamHandler for console output only
+- **LOG SUMMARY**: Printed to console AFTER JSON dump (not included in JSON)
+- **JSON STRUCTURE**: Single standardized "completion_summary" as last element
+- **NO DUPLICATES**: Uses shared create_completion_summary() function from step1.py
+- **HISTORY MANAGEMENT**: Limits to 10 entries to prevent memory issues
+
 USAGE:
 ------
 Can be called directly or imported by step1.py for automatic pipeline execution.
 
 OUTPUT:
 -------
-- step2.json: Contains flattened match summaries with historical data
+- step2.json: Contains flattened match summaries with historical data and standardized completion_summary
 """
 
 import json
@@ -24,6 +55,11 @@ import time
 from datetime import datetime
 from pathlib import Path
 import pytz
+
+# Import the standardized completion_summary function from step1
+from step1 import create_completion_summary
+
+# Centralized logging removed - using simplified approach
 
 # Constants
 TZ = pytz.timezone("America/New_York")
@@ -203,11 +239,32 @@ def save_match_summaries(summaries_data: dict, output_file: str = "step2.json") 
         existing_data["last_updated"] = datetime.now(TZ).isoformat()
         existing_data["total_entries"] = len(existing_data["history"])
         
+        # Add standardized completion_summary 
+        current_data = summaries_data
+        total_summaries = len(current_data.get("summaries", []))
+        in_play_summaries = len([s for s in current_data.get("summaries", []) if s.get("status_id") in {2, 3, 4, 5, 6, 7}])
+        processing_time = current_data.get("metadata", {}).get("processing_time", 0.0)
+        
+        completion_summary = create_completion_summary(
+            step_name="MERGE/FLATTEN",
+            step_number=2,
+            matches_count=total_summaries,
+            in_play_count=in_play_summaries,
+            processing_time=processing_time,
+            daily_number="N/A",
+            endpoint_type="summaries"
+        )
+        existing_data["completion_summary"] = completion_summary
+        
         # Save to file
         with open(output_path, 'w') as f:
             json.dump(existing_data, f, indent=2)
         
         logging.info(f"Saved step2 data to {output_file} (history: {len(existing_data['history'])} entries)")
+        
+        # Print log summary AFTER JSON dump (not included in JSON)
+        print_step2_log_summary(total_summaries, in_play_summaries, processing_time, output_file)
+        
         return True
         
     except Exception as e:
@@ -222,12 +279,26 @@ def run_step2(pipeline_start_time: float = None) -> list:
     Returns:
         list: Summaries data for use in step7
     """
+    
+    # ============================================================================
+    # SIMPLIFIED LOGGING SETUP
+    # ============================================================================
+    logger = logging.getLogger("step2")
+    if not logger.handlers:
+        # Add handlers if not already present
+        handler = logging.StreamHandler()
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    
+    logger.info("Step 2 logger configured with simplified logging")
+    # ============================================================================
+    
     try:
         start_time = time.time()
         
         # Load step1.json data
         if not STEP1_JSON.exists():
-            logging.error(f"Step1 data file not found: {STEP1_JSON}")
+            logger.error(f"Step1 data file not found: {STEP1_JSON}")
             return []
         
         with open(STEP1_JSON, 'r') as f:
@@ -248,15 +319,34 @@ def run_step2(pipeline_start_time: float = None) -> list:
         success = save_match_summaries(merged_data, str(STEP2_JSON))
         
         if success:
-            logging.info(f"Step2 completed successfully in {processing_time:.2f}s")
+            logger.info(f"Step2 completed successfully in {processing_time:.2f}s")
+            
             return merged_data.get("summaries", [])
         else:
-            logging.error("Step2 failed to save data")
+            logger.error("Step2 failed to save data")
             return []
             
     except Exception as e:
-        logging.error(f"Step2 processing failed: {e}")
+        logger.error(f"Step2 processing failed: {e}")
         return []
+
+def get_ny_time_str():
+    """Get New York time as formatted string"""
+    return datetime.now(TZ).strftime("%m/%d/%Y %I:%M:%S %p %Z")
+
+def print_step2_log_summary(total_summaries, in_play_summaries, processing_time, output_file):
+    """Print step2 log summary after JSON dump (not included in JSON)"""
+    print("\n" + "="*60)
+    print("STEP 2 EXECUTION SUMMARY")
+    print("="*60)
+    print(f"Total summaries created: {total_summaries}")
+    print(f"In-play summaries: {in_play_summaries} (status IDs 2-7)")
+    print(f"Other status summaries: {total_summaries - in_play_summaries} (status IDs 0,1,8+)")
+    print(f"Processing time: {processing_time:.2f}s")
+    print(f"JSON output: {output_file}")
+    print(f"Input source: step1.json")
+    print(f"Timestamp: {get_ny_time_str()}")
+    print("="*60)
 
 def main():
     """Standalone execution for testing."""

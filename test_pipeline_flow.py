@@ -3,7 +3,7 @@
 test_pipeline_flow.py
 
 An integration test / watcher that starts the pipeline via start.sh,
-then monitors step1.json, step27.json, and step7_matches.log to verify
+then monitors step1.json, step2.json, and step7_matches.log to verify
 data is flowing from Step 1 → Step 2 → Step 7 in each 60 second cycle.
 Finally, it stops the pipeline via start.sh stop.
 
@@ -20,7 +20,7 @@ from datetime import datetime
 
 # ————— CONFIG —————
 STEP1_JSON   = "step1.json"
-STEP2_JSON   = "step27.json"
+STEP2_JSON   = "step2.json"
 STEP7_LOG    = "step7_matches.log"
 PID_FILE     = "step1.pid"
 START_SCRIPT = "./start.sh"
@@ -79,7 +79,7 @@ def main():
     top_keys = list(data1.keys())
     print(f"{now()} | '{STEP1_JSON}' top-level keys: {top_keys}")
 
-    # 3) Wait for step27.json (Step 2 output)
+    # 3) Wait for step2.json (Step 2 output)
     print(f"{now()} | Waiting up to {TIMEOUT_SEC}s for '{STEP2_JSON}' to appear…")
     t2_start = time.time()
     if not wait_for_file(STEP2_JSON, timeout=TIMEOUT_SEC):
@@ -90,7 +90,7 @@ def main():
     t2 = time.time()
     print(f"{now()} | ✓ '{STEP2_JSON}' appeared after {t2 - t2_start:.1f}s.")
 
-    # 3a) Inspect step27.json
+    # 3a) Inspect step2.json
     try:
         with open(STEP2_JSON, "r", encoding="utf-8") as f:
             data2 = json.load(f)

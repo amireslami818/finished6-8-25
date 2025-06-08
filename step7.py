@@ -1,6 +1,46 @@
 #!/usr/bin/env python3
 """
-step7.py – Phase 2: Read JSON → filter & pretty-print
+🚨 WARNING FOR FUTURE AI CODING AGENTS 🚨
+==========================================
+DO NOT CREATE DUPLICATE SUMMARY KEYS IN JSON OUTPUTS!
+THIS PROJECT SUFFERED FROM "KEY UNIFORMITY PROBLEMS":
+
+❌ NEVER CREATE: step1_completion_summary, step1_detailed_summary, step2_completion_summary, etc.
+✅ ALWAYS USE: Single standardized "completion_summary" key across ALL JSON outputs
+✅ USE SHARED: create_completion_summary() function from step1.py
+
+KEY UNIFORMITY PROBLEM TERMS:
+- "Duplicate Summary Keys" - Multiple different key names for the same purpose  
+- "Legacy Summary Key Structures" - Old inconsistent naming patterns
+- "completion_summary Standardization" - Ensuring all files use the same key structure
+
+THIS IS THE BIGGEST PROBLEM WITH AI CODING AGENTS - AVOID RECREATING THIS ISSUE!
+==================================================================================
+
+STEP 7 - STATUS FILTER & DISPLAY
+=================================
+
+PURPOSE:
+--------
+Filters matches by status (2-7) and displays pretty, human-readable field extraction
+for live football matches. This is a display-only step that does not modify data.
+
+LOGGING IMPLEMENTATION:
+----------------------
+- **FIELD EXTRACTION LOGGING**: Only pretty, human-readable match data logged to step7_matches.log
+- **PROCESS LOGGING**: Headers, footers, and status messages printed to console only (no file logging)
+- **NO DUPLICATED OUTPUT**: Clear separation between file logging (field data) and console output (process info)
+- **LOG FILE**: step7_matches.log (contains only match field extraction: scores, odds, environment data)
+
+USAGE:
+------
+Can be called directly or imported by other steps. Reads from step2.json by default.
+
+INPUT/OUTPUT:
+------------
+- **INPUT**: step2.json (from Step 2 processing)
+- **CONSOLE OUTPUT**: Process information, headers, footers, status messages
+- **FILE OUTPUT**: step7_matches.log (pretty field extraction only)
 """
 
 import json
@@ -68,11 +108,13 @@ def setup_logger() -> logging.Logger:
 match_logger = setup_logger()
 
 
-def log_and_print(message: str):
-    print(message)
+def log_field_data(message: str):
+    """Log field extraction data to file only (pretty, human-readable match data)."""
     match_logger.info(message)
-    for handler in match_logger.handlers:
-        handler.flush()
+
+def print_process_info(message: str):
+    """Print process information to console only (headers, footers, status)."""
+    print(message)
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +227,7 @@ def sort_matches_by_competition_and_time(matches: dict) -> dict:
 # Display Functions
 # ---------------------------------------------------------------------------
 def write_main_header(fetch_count: int, total: int, generated_at: str, pipeline_time=None):
+    """Write the main header to console only (process logging)."""
     header = (
         f"\n{'='*80}\n"
         f"🔥 STEP 7: STATUS FILTER (2–7)\n"
@@ -197,13 +240,11 @@ def write_main_header(fetch_count: int, total: int, generated_at: str, pipeline_
         f"Included Matches Count: {total}\n"
         f"{'='*80}\n"
     )
-    print(header)  # Also print to stdout
-    match_logger.info(header)
-    for h in match_logger.handlers:
-        h.flush()
+    print_process_info(header)
 
 
 def write_main_footer(fetch_count: int, total: int, generated_at: str, pipeline_time=None, matches=None):
+    """Write the main footer to console only (process logging)."""
     footer = (
         f"\n{'='*80}\n"
         f"END OF STATUS FILTER – STEP 7\n"
@@ -213,8 +254,8 @@ def write_main_footer(fetch_count: int, total: int, generated_at: str, pipeline_
         f"Daily Fetch: #{fetch_count}\n"
         f"{'='*80}\n"
     )
-    print(footer)  # Also print to stdout
-    match_logger.info(footer)
+    print_process_info(footer)
+    
     if matches and total > 0:
         status_counts = {}
         for match_data in matches.values():
@@ -230,10 +271,7 @@ def write_main_footer(fetch_count: int, total: int, generated_at: str, pipeline_
             desc = get_status_description(status_id)
             summary_footer += f"{desc} (ID: {status_id}): {count}\n"
         summary_footer += f"Total: {total}\n" f"{'='*60}\n"
-        print(summary_footer)  # Also print to stdout
-        match_logger.info(summary_footer)
-    for h in match_logger.handlers:
-        h.flush()
+        print_process_info(summary_footer)
 
 
 def write_competition_group_header(competition: str, country: str, match_count: int):
@@ -247,7 +285,7 @@ def write_competition_group_header(competition: str, country: str, match_count: 
         f"{'='*100}\n"
         f"{'='*100}\n"
     )
-    log_and_print(header)
+    print_process_info(header)
 
 
 def format_american_odds(odds_value):
@@ -341,32 +379,32 @@ def format_environment_data(match_data: dict) -> str:
 # ---------------------------------------------------------------------------
 # Main Processing Function
 # ---------------------------------------------------------------------------
-def run_step7(summaries_list: list = None):
+def run_step7(matches_list: list = None):
     """
     Phase 2:
-      1. If summaries_list is None, load step2.json from disk.
+      1. If matches_list is None, load step2.json from disk.
       2. Filter out anything with status_id not in STATUS_FILTER.
       3. Sort by competition & time.
       4. Pretty-print each competition group to the console + log.
     """
     # 1) Load from disk if needed
-    if summaries_list is None:
+    if matches_list is None:
         if not STEP2_OUTPUT.exists():
-            print(f"Error: Cannot find {STEP2_OUTPUT.name} for Step 7.")
+            print_process_info(f"Error: Cannot find {STEP2_OUTPUT.name} for Step 7.")
             return
         with open(STEP2_OUTPUT, "r", encoding="utf-8") as f:
             all_data = json.load(f)
         # The top‐level has "history" plus other keys; take the last entry's "matches"
         history = all_data.get("history", [])
         if not history:
-            print("Error: No history in step2.json.")
+            print_process_info("Error: No history in step2.json.")
             return
         last_batch = history[-1]
         raw_matches = last_batch.get("matches", {})
         generated_at = last_batch.get("timestamp", get_eastern_time())
     else:
-        # Convert list of summaries into a dict mapping match_id → summary
-        raw_matches = {str(s["match_id"]): s for s in summaries_list}
+        # Convert list of matches into a dict mapping match_id → match
+        raw_matches = {str(s["match_id"]): s for s in matches_list}
         generated_at = get_eastern_time()
 
     # 2) Filter status_id ∈ STATUS_FILTER
@@ -413,36 +451,36 @@ def run_step7(summaries_list: list = None):
             home_score = home_team.get("score", {}).get("current", 0)
             away_score = away_team.get("score", {}).get("current", 0)
 
-            # Basic line
+            # Basic line - log field extraction to file only
             line = f"• [{status_desc} | {time_str}'] {home} {home_score} – {away_score} {away}"
-            log_and_print(line)
+            log_field_data(line)
 
-            # Betting odds block
+            # Betting odds block - log field extraction to file only
             odds_text = format_betting_odds(match_data)
-            log_and_print(odds_text)
+            log_field_data(odds_text)
 
-            # Environment block
+            # Environment block - log field extraction to file only
             env_text = format_environment_data(match_data)
-            log_and_print(env_text)
+            log_field_data(env_text)
 
-            # Separator between matches
-            log_and_print("-"*80)
+            # Separator between matches - log field extraction to file only
+            log_field_data("-"*80)
 
     # 6) Write footer
     write_main_footer(fetch_count, total, generated_at, pipeline_time=None, matches=filtered)
-    print("Step 7: Completed.")
+    print_process_info("Step 7: Completed.")
 
 
 # ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    print("="*80)
-    print("STEP 7 - STATUS FILTER & DISPLAY STARTED")
-    print("="*80)
+    print_process_info("="*80)
+    print_process_info("STEP 7 - STATUS FILTER & DISPLAY STARTED")
+    print_process_info("="*80)
     
     run_step7()
     
-    print("="*80)
-    print("STEP 7 - STATUS FILTER & DISPLAY COMPLETED")
-    print("="*80)
+    print_process_info("="*80)
+    print_process_info("STEP 7 - STATUS FILTER & DISPLAY COMPLETED")
+    print_process_info("="*80)

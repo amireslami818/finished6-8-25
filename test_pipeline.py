@@ -32,10 +32,10 @@ class TestStep2Step7Pipeline(unittest.TestCase):
         # Monkey-patch BASE_DIR for both modules
         step2.BASE_DIR = Path(self.test_dir)
         step2.STEP1_JSON = step2.BASE_DIR / "step1.json"
-        step2.STEP2_OUTPUT = step2.BASE_DIR / "step27.json"
+        step2.STEP2_OUTPUT = step2.BASE_DIR / "step2.json"
         
         step7.BASE_DIR = Path(self.test_dir)
-        step7.STEP2_OUTPUT = step7.BASE_DIR / "step27.json"
+        step7.STEP2_OUTPUT = step7.BASE_DIR / "step2.json"
         
         # Ensure directories exist
         os.makedirs(step2.BASE_DIR, exist_ok=True)
@@ -155,7 +155,7 @@ class TestStep2Step7Pipeline(unittest.TestCase):
         self.assertIsInstance(summaries, list)
         self.assertEqual(len(summaries), 2)
 
-        # Check that step27.json exists
+        # Check that step2.json exists
         self.assertTrue(step2.STEP2_OUTPUT.exists())
 
         # Load the JSON file and inspect its structure
