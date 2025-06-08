@@ -379,7 +379,7 @@ def format_environment_data(match_data: dict) -> str:
 # ---------------------------------------------------------------------------
 # Main Processing Function
 # ---------------------------------------------------------------------------
-def run_step7(matches_list: list = None):
+def run_step7(matches_list: dict = None):
     """
     Phase 2:
       1. If matches_list is None, load step2.json from disk.
@@ -403,8 +403,8 @@ def run_step7(matches_list: list = None):
         raw_matches = last_batch.get("matches", {})
         generated_at = last_batch.get("timestamp", get_eastern_time())
     else:
-        # Convert list of matches into a dict mapping match_id → match
-        raw_matches = {str(s["match_id"]): s for s in matches_list}
+        # Already a dict of matches
+        raw_matches = matches_list
         generated_at = get_eastern_time()
 
     # 2) Filter status_id ∈ STATUS_FILTER

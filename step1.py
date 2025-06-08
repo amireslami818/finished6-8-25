@@ -141,6 +141,456 @@ URLS = {
     "country":     f"{BASE_URL}/country/list",
 }
 
+# API ENDPOINT SCHEMAS
+# ===================
+
+# ENDPOINT 1: /match/detail_live (live)
+# --------------------------------------
+# Returns real-time match data with scores, stats, incidents, and text live
+LIVE_SCHEMA = """
+{
+  "type": "object",
+  "properties": {
+    "code": {"type": "integer"},
+    "results": {
+      "type": "array",
+      "description": "Real-time data list",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "description": "Match id"},
+          "score": {
+            "type": "array",
+            "description": "Score array: [match_id, status_id, home_scores, away_scores, kickoff_timestamp, '']",
+            "items": [
+              {"description": "Match id (String)"},
+              {"description": "Match status (Integer)"},
+              {
+                "description": "Home scores: [regular_time, halftime, red_cards, yellow_cards, corners(-1=no data), overtime, penalty]"
+              },
+              {
+                "description": "Away scores: [regular_time, halftime, red_cards, yellow_cards, corners(-1=no data), overtime, penalty]"
+              },
+              {"description": "Kickoff timestamp (Integer)"},
+              {"description": "Compatible ignore (String)"}
+            ]
+          },
+          "stats": {
+            "type": "array",
+            "description": "Match statistics",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {"type": "integer", "description": "Type, see status code -> technical statistics"},
+                "home": {"type": "integer", "description": "Home team value"},
+                "away": {"type": "integer", "description": "Away team value"}
+              }
+            }
+          },
+          "incidents": {
+            "type": "array",
+            "description": "Match incidents",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {"type": "integer", "description": "Type, see status code -> technical statistics"},
+                "position": {"type": "integer", "description": "Incident occurred: 0-neutral, 1-home team, 2-away team"},
+                "time": {"type": "integer", "description": "Time (minutes)"},
+                "player_id": {"type": "string", "description": "Player id related to incident (optional)"},
+                "player_name": {"type": "string", "description": "Player name related to incident (optional)"},
+                "assist1_id": {"type": "string", "description": "Assist player 1 id, goal related (optional)"},
+                "assist1_name": {"type": "string", "description": "Assist player 1 name, goal related (optional)"},
+                "assist2_id": {"type": "string", "description": "Assist player 2 id, goal related (optional)"},
+                "assist2_name": {"type": "string", "description": "Assist player 2 name, goal related (optional)"},
+                "home_score": {"type": "integer", "description": "Home team score, goal related (optional)"},
+                "away_score": {"type": "integer", "description": "Away team score, goal related (optional)"},
+                "in_player_id": {"type": "string", "description": "Substitute in player id (optional)"},
+                "in_player_name": {"type": "string", "description": "Substitute in player name (optional)"},
+                "out_player_id": {"type": "string", "description": "Substitute out player id (optional)"},
+                "out_player_name": {"type": "string", "description": "Substitute out player name (optional)"},
+                "var_reason": {
+                  "type": "integer",
+                  "description": "VAR reason: 1-Goal awarded, 2-Goal not awarded, 3-Penalty awarded, 4-Penalty not awarded, 5-Red card given, 6-Card upgrade, 7-Mistaken identity, 0-Other"
+                },
+                "var_result": {
+                  "type": "integer",
+                  "description": "VAR result: 1-Goal confirmed, 2-Goal cancelled, 3-Penalty confirmed, 4-Penalty cancelled, 5-Red card confirmed, 6-Red card cancelled, 7-Card upgrade confirmed, 8-Card upgrade cancelled, 9-Original decision, 10-Original decision changed, 0-Unknown"
+                },
+                "reason_type": {"type": "integer", "description": "Reason for red/yellow cards and substitutions"}
+              }
+            }
+          },
+          "tlive": {
+            "type": "array",
+            "description": "Match text live",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time": {"type": "string", "description": "Time (minutes)"},
+                "data": {"type": "string", "description": "Contents"},
+                "position": {"type": "integer", "description": "Incident occurred: 0-neutral, 1-home team, 2-away team"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+# ENDPOINT 2: /match/recent/list (details)
+# -----------------------------------------
+# Returns detailed match information including environment data
+DETAILS_SCHEMA = """
+{
+  "type": "object",
+  "properties": {
+    "code": {"type": "integer"},
+    "query": {
+      "type": "object",
+      "description": "Inquiry",
+      "properties": {
+        "total": {"type": "integer", "description": "Return the total amount of data"},
+        "type": {"type": "string", "description": "Query type: uuid/page/time, default page"},
+        "uuid": {"type": "string", "description": "uuid query value"},
+        "page": {"type": "integer", "description": "page query value"},
+        "time": {"type": "integer", "description": "time query value, timestamp format"},
+        "min_time": {"type": "integer", "description": "Return smallest time (updated_at value)"},
+        "max_time": {"type": "integer", "description": "Return largest time (updated_at value)"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "description": "Match list",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "description": "Match id"},
+          "season_id": {"type": "string", "description": "Season id"},
+          "competition_id": {"type": "string", "description": "Competition id"},
+          "home_team_id": {"type": "string", "description": "Home team id"},
+          "away_team_id": {"type": "string", "description": "Away team id"},
+          "status_id": {"type": "integer", "description": "Match status"},
+          "match_time": {"type": "integer", "description": "Match time"},
+          "venue_id": {"type": "string", "description": "Venue id"},
+          "referee_id": {"type": "string", "description": "Referee id"},
+          "neutral": {"type": "integer", "description": "Is it neutral, 1-Yes, 0-No"},
+          "note": {"type": "string", "description": "Remarks"},
+          "home_scores": {
+            "type": "array",
+            "description": "Home team scores: [regular_time, halftime, red_cards, yellow_cards, corners(-1=no data), overtime, penalty]"
+          },
+          "away_scores": {
+            "type": "array",
+            "description": "Away team scores: [regular_time, halftime, red_cards, yellow_cards, corners(-1=no data), overtime, penalty]"
+          },
+          "home_position": {"type": "string", "description": "Home Team Ranking"},
+          "away_position": {"type": "string", "description": "Away Team Ranking"},
+          "coverage": {
+            "type": "object",
+            "properties": {
+              "mlive": {"type": "integer", "description": "Is there animation, 1-yes, 0-no"},
+              "lineup": {"type": "integer", "description": "Is there lineup, 1-yes, 0-no"}
+            }
+          },
+          "round": {
+            "type": "object",
+            "properties": {
+              "stage_id": {"type": "string", "description": "Stage id"},
+              "group_num": {"type": "integer", "description": "Which group, 1-A, 2-B and so on"},
+              "round_num": {"type": "integer", "description": "Which round"}
+            }
+          },
+          "related_id": {"type": "string", "description": "Match id of other round in double round (optional)"},
+          "agg_score": {"type": "array", "description": "Total score of two rounds: [home, away] (optional)"},
+          "environment": {
+            "type": "object",
+            "description": "Match environment (only if data available)",
+            "properties": {
+              "weather": {
+                "type": "integer",
+                "description": "Weather: 1-Partially cloudy, 2-Cloudy, 3-Partially cloudy/rain, 4-Snow, 5-Sunny, 6-Overcast Rain/partial thunderstorm, 7-Overcast, 8-Mist, 9-Cloudy with rain, 10-Cloudy with rain, 11-Cloudy with rain/partial Thunderstorms, 12-Clouds/rains and thunderstorms locally, 13-Fog"
+              },
+              "pressure": {"type": "string", "description": "Air pressure"},
+              "temperature": {"type": "string", "description": "Temperature"},
+              "wind": {"type": "string", "description": "Wind speed"},
+              "humidity": {"type": "string", "description": "Humidity"}
+            }
+          },
+          "tbd": {"type": "integer", "description": "Is match time TBD? 1-Yes (optional)"},
+          "has_ot": {"type": "integer", "description": "Is there overtime? 1-Yes (optional)"},
+          "ended": {"type": "integer", "description": "End time (optional)"},
+          "team_reverse": {"type": "integer", "description": "Are host/away positions opposite? 1-Yes (optional)"},
+          "updated_at": {"type": "integer", "description": "Update time"}
+        }
+      }
+    }
+  }
+}
+"""
+
+# ENDPOINT 3: /odds/history (odds)
+# ---------------------------------
+# Returns betting odds by company for each match
+# Access: The results object is keyed by Company ID (e.g., "2", "9", "17")
+# Each company provides odds in multiple formats: asia (spread), bs (over/under), eu (moneyline), cr (corners)
+ODDS_SCHEMA = """
+{
+  "type": "object",
+  "properties": {
+    "code": {"type": "integer"},
+    "results": {
+      "type": "object",
+      "properties": {
+        "Company id": {
+          "type": "object",
+          "description": "The key is the odds company id, see status code -> Odds Company ID for details",
+          "properties": {
+            "asia": {
+              "type": "array",
+              "description": "Asian Handicap (Spread betting)",
+              "items": {
+                "type": "array",
+                "description": "Asia odds data: [timestamp, match_time, home_odds, handicap, away_odds, status, sealed, score]",
+                "items": [
+                  {"description": "Change time (Integer)"},
+                  {"description": "Time of match, empty before start (String)"},
+                  {"description": "Home win odds (Float)"},
+                  {"description": "Handicap: positive=home gives, negative=away gives (Float)"},
+                  {"description": "Away win odds (Float)"},
+                  {"description": "Match status (Integer)"},
+                  {"description": "Whether sealed: 0-No, 1-Yes (Integer)"},
+                  {"description": "Score: home-away (String)"}
+                ]
+              }
+            },
+            "eu": {
+              "type": "array",
+              "description": "European/Moneyline odds",
+              "items": {
+                "type": "array",
+                "description": "Euro odds data: [timestamp, match_time, home_odds, draw_odds, away_odds, status, sealed, score]",
+                "items": [
+                  {"description": "Change time (Integer)"},
+                  {"description": "Time of match, empty before start (String)"},
+                  {"description": "Home win odds (Float)"},
+                  {"description": "Draw odds (Float)"},
+                  {"description": "Away win odds (Float)"},
+                  {"description": "Match status (Integer)"},
+                  {"description": "Whether sealed: 0-No, 1-Yes (Integer)"},
+                  {"description": "Score: home-away (String)"}
+                ]
+              }
+            },
+            "bs": {
+              "type": "array",
+              "description": "Ball Size (Over/Under total goals)",
+              "items": {
+                "type": "array",
+                "description": "O/U odds data: [timestamp, match_time, over_odds, total, under_odds, status, sealed, score]",
+                "items": [
+                  {"description": "Change time (Integer)"},
+                  {"description": "Time of match, empty before start (String)"},
+                  {"description": "Over odds (Float)"},
+                  {"description": "Total goals line (Float)"},
+                  {"description": "Under odds (Float)"},
+                  {"description": "Match status (Integer)"},
+                  {"description": "Whether sealed: 0-No, 1-Yes (Integer)"},
+                  {"description": "Score: home-away (String)"}
+                ]
+              }
+            },
+            "cr": {
+              "type": "array",
+              "description": "Corner kicks Over/Under",
+              "items": {
+                "type": "array",
+                "description": "Corner odds data: [timestamp, match_time, over_odds, total, under_odds, status, sealed, corner_score]",
+                "items": [
+                  {"description": "Change time (Integer)"},
+                  {"description": "Time of match, empty before start (String)"},
+                  {"description": "Over odds (Float)"},
+                  {"description": "Total corners line (Float)"},
+                  {"description": "Under odds (Float)"},
+                  {"description": "Match status (Integer)"},
+                  {"description": "Whether sealed: 0-No, 1-Yes (Integer)"},
+                  {"description": "Corner ratio: home-away (String)"}
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+# ENDPOINT 4: /team/additional/list (team)
+# -----------------------------------------
+# Returns team information including names, logos, market values, etc.
+# NOTE: Team data should be cached/saved once as team names rarely change
+# Consider checking once daily to ensure team IDs still match team names
+TEAM_SCHEMA = """
+{
+  "type": "object",
+  "properties": {
+    "code": {"type": "integer"},
+    "query": {
+      "type": "object",
+      "description": "Inquiry",
+      "properties": {
+        "total": {"type": "integer", "description": "Return the total amount of data"},
+        "type": {"type": "string", "description": "Query type: uuid/page/time, default page"},
+        "uuid": {"type": "string", "description": "uuid query value"},
+        "page": {"type": "integer", "description": "page query value"},
+        "time": {"type": "integer", "description": "time query value, timestamp format"},
+        "min_time": {"type": "integer", "description": "Return smallest time (updated_at value)"},
+        "max_time": {"type": "integer", "description": "Return largest time (updated_at value)"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "description": "Team list",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "description": "Team id"},
+          "competition_id": {"type": "string", "description": "Competition id (league team belongs to, not cups)"},
+          "country_id": {"type": "string", "description": "Country id"},
+          "name": {"type": "string", "description": "Team name"},
+          "short_name": {"type": "string", "description": "Team abbreviation"},
+          "logo": {"type": "string", "description": "Team logo"},
+          "national": {"type": "integer", "description": "Whether national team, 1-Yes, 0-No"},
+          "country_logo": {"type": "string", "description": "National team logo (exists for national teams)"},
+          "foundation_time": {"type": "integer", "description": "Year established"},
+          "website": {"type": "string", "description": "Team official website"},
+          "coach_id": {"type": "string", "description": "Coach id"},
+          "venue_id": {"type": "string", "description": "Venue id"},
+          "market_value": {"type": "integer", "description": "Market value"},
+          "market_value_currency": {"type": "string", "description": "Market value unit"},
+          "total_players": {"type": "integer", "description": "Total players, -1 means no data"},
+          "foreign_players": {"type": "integer", "description": "Non-local players, -1 means no data"},
+          "national_players": {"type": "integer", "description": "National team players, -1 means no data"},
+          "uid": {"type": "string", "description": "Team id after merging duplicates (optional)"},
+          "virtual": {"type": "integer", "description": "Whether placeholder team, 1-Yes, 0-No"},
+          "gender": {"type": "integer", "description": "Gender: 1-Male, 2-Female"},
+          "updated_at": {"type": "integer", "description": "Update time"}
+        }
+      }
+    }
+  }
+}
+"""
+
+# ENDPOINT 5: /competition/additional/list (competition)
+# -------------------------------------------------------
+# Returns competition information including names, logos, types, seasons, etc.
+# NOTE: Competition data should be cached and only refreshed once per hour
+# Competition details rarely change, so avoid hitting API every fetch
+COMPETITION_SCHEMA = """
+{
+  "type": "object",
+  "properties": {
+    "code": {"type": "integer"},
+    "query": {
+      "type": "object",
+      "description": "Inquiry",
+      "properties": {
+        "total": {"type": "integer", "description": "Return the total amount of data"},
+        "type": {"type": "string", "description": "Query type: uuid/page/time, default page"},
+        "uuid": {"type": "string", "description": "uuid query value"},
+        "page": {"type": "integer", "description": "page query value"},
+        "time": {"type": "integer", "description": "time query value, timestamp format"},
+        "min_time": {"type": "integer", "description": "Return smallest time (updated_at value)"},
+        "max_time": {"type": "integer", "description": "Return largest time (updated_at value)"}
+      }
+    },
+    "results": {
+      "type": "array",
+      "description": "Competition list",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "description": "Competition id"},
+          "category_id": {"type": "string", "description": "Category id"},
+          "country_id": {"type": "string", "description": "Country id"},
+          "name": {"type": "string", "description": "Competition name"},
+          "short_name": {"type": "string", "description": "Competition abbreviation"},
+          "logo": {"type": "string", "description": "Competition logo"},
+          "type": {"type": "integer", "description": "Competition type: 0-unknown, 1-league, 2-cup, 3-friendly"},
+          "cur_season_id": {"type": "string", "description": "Current season id"},
+          "cur_stage_id": {"type": "string", "description": "Current stage id"},
+          "cur_round": {"type": "integer", "description": "Current round"},
+          "round_count": {"type": "integer", "description": "Total rounds"},
+          "title_holder": {
+            "type": "array",
+            "description": "Defending champion: [team_id, championships_count]"
+          },
+          "most_titles": {
+            "type": "array",
+            "description": "Most winning team: [[team_ids], championships_count]"
+          },
+          "newcomers": {
+            "type": "array",
+            "description": "Promoted/relegated teams: [[promoted_teams], [relegated_teams]]"
+          },
+          "divisions": {
+            "type": "array",
+            "description": "Competition level: [[higher_level_ids], [lower_level_ids]]"
+          },
+          "host": {
+            "type": "object",
+            "properties": {
+              "country": {"type": "string", "description": "Country"},
+              "city": {"type": "string", "description": "City (optional)"}
+            }
+          },
+          "primary_color": {"type": "string", "description": "Main color"},
+          "secondary_color": {"type": "string", "description": "Secondary color"},
+          "updated_at": {"type": "integer", "description": "Update time"}
+        }
+      }
+    }
+  }
+}
+"""
+
+# ENDPOINT 6: /country/list (country)
+# ------------------------------------
+# Returns country information
+# NOTE: Country data should be cached and only refreshed once per hour
+# Country data is very static, avoid hitting API every fetch
+COUNTRY_SCHEMA = """
+{
+  "type": "object",
+  "properties": {
+    "code": {"type": "integer"},
+    "results": {
+      "type": "array",
+      "description": "Country list",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "description": "Country id"},
+          "category_id": {"type": "string", "description": "Category id"},
+          "name": {"type": "string", "description": "Country name"},
+          "logo": {"type": "string", "description": "Country logo"},
+          "updated_at": {"type": "integer", "description": "Update time"}
+        }
+      }
+    }
+  }
+}
+"""
+
+# CACHING STRATEGY FOR STATIC ENDPOINTS
+# =====================================
+# Team, Competition, and Country endpoints should be cached and refreshed only once per hour
+# These data points rarely change, so hitting them every minute is wasteful
+# Best practice: Cache on first fetch, then refresh hourly to ensure IDs still match names
+
 # Daily match counter file
 COUNTER_FILE = "daily_match_counter.json"
 PID_FILE = "step1.pid"
@@ -1061,7 +1511,7 @@ def continuous_loop():
             logger.info("Starting Step 7 (filter & pretty-print)...")
             start_s7 = time.time()
             try:
-                step7.run_step7(summaries_list=summaries if summaries else None)
+                step7.run_step7(matches_list=summaries if summaries else None)
                 s7_time = time.time() - start_s7
                 logger.info(f"STEP 7 – run_step7: {s7_time:.2f}s")
                 
@@ -1109,7 +1559,6 @@ def continuous_loop():
 
     logger.info("Continuous loop has been signaled to stop. Exiting gracefully.")
 
-
 def run_single_cycle():
     """Run a single Step 1 → Step 2 → Step 7 cycle (for non-continuous mode)"""
     try:
@@ -1146,7 +1595,7 @@ def run_single_cycle():
         
         # Step 7: Filter and display with timing
         start_s7 = time.time()
-        step7.run_step7(summaries_list=summaries)
+        step7.run_step7(matches_list=summaries)
         s7_time = time.time() - start_s7
         
         # Calculate total pipeline time from Step 1 to Step 7 completion
