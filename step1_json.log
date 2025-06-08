@@ -1,0 +1,28 @@
+{"asctime": "06/08/2025 02:10:31 AM EST", "name": "step1", "levelname": "INFO", "message": "Regular log message without footer"}
+{"asctime": "06/08/2025 02:10:31 AM EST", "name": "step1", "levelname": "INFO", "message": "{\n  \"completion_status\": \"STEP 1 - FETCH COMPLETED SUCCESSFULLY - 06/07/2025 10:10:31 PM EST\",\n  \"daily_match_number\": 45,\n  \"total_matches_fetched_all_statuses\": \"22 matches (ALL status IDs from Step 1 live endpoint)\",\n  \"in_play_matches\": \"14 (status IDs 2\\u20137)\",\n  \"other_status_matches\": \"8 (status IDs 0,1,8,9,10,11,12,13)\",\n  \"step1_execution_time\": \"5.40 seconds\",\n  \"total_pipeline_time\": \"5.40 seconds\"\n}"}
+{"timestamp": "06/07/2025 10:14:37 PM EST", "level": "INFO", "logger": "step1", "message": "This is a regular log message"}
+{"timestamp": "06/07/2025 10:14:37 PM EST", "level": "INFO", "logger": "step1", "message": "COMPLETION_FOOTER", "completion_status": "STEP 1 - FETCH COMPLETED SUCCESSFULLY - 06/07/2025 10:14:37 PM EST", "daily_match_number": 45, "total_matches_fetched_all_statuses": "22 matches (ALL status IDs from Step 1 live endpoint)", "in_play_matches": "14 (status IDs 2\u20137)", "other_status_matches": "8 (status IDs 0,1,8,9,10,11,12,13)", "step1_execution_time": "5.40 seconds", "total_pipeline_time": "5.40 seconds"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "This is a regular log message"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "================================================================================"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "                    COMPLETION SUMMARY"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "================================================================================"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "Completion Status: STEP 1 - FETCH COMPLETED SUCCESSFULLY - 06/07/2025 10:14:52 PM EST"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "Daily Match Number: 45"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "Total Matches Fetched: 22 matches (ALL status IDs from Step 1 live endpoint)"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "In-Play Matches: 14 (status IDs 2\u20137)"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "Other Status Matches: 8 (status IDs 0,1,8,9,10,11,12,13)"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "Step 1 Execution Time: 5.40 seconds"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "Total Pipeline Time: 5.40 seconds"}
+{"timestamp": "06/07/2025 10:14:52 PM EST", "level": "INFO", "logger": "step1", "message": "================================================================================"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "This is a regular log message"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "================================================================================"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "                    COMPLETION SUMMARY"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "================================================================================"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "Completion Status: STEP 1 - FETCH COMPLETED SUCCESSFULLY - 06/07/2025 10:15:12 PM EST"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "Daily Match Number: 45"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "Total Matches Fetched: 22 matches (ALL status IDs from Step 1 live endpoint)"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "In-Play Matches: 14 (status IDs 2\u20137)"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "Other Status Matches: 8 (status IDs 0,1,8,9,10,11,12,13)"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "Step 1 Execution Time: 5.40 seconds"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "Total Pipeline Time: 5.40 seconds"}
+{"timestamp": "06/07/2025 10:15:12 PM EST", "level": "INFO", "logger": "step1", "message": "================================================================================"}
