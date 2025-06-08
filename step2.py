@@ -6,6 +6,35 @@ STEP 2 - DATA PROCESSOR (MERGER AND FILTER)
 This script will extract specific fields from step1.json and merge them by match ID.
 To be built incrementally in Jupyter.
 
+ENVIRONMENT DATA CONVERSIONS:
+-----------------------------
+Step 2 automatically converts environment data to user-friendly formats:
+
+1. WEATHER - Converts numeric ID to descriptive text:
+   - 1 → "Partially cloudy"
+   - 2 → "Cloudy"
+   - 3 → "Partially cloudy/rain"
+   - 4 → "Snow"
+   - 5 → "Sunny"
+   - 6 → "Overcast Rain/partial thunderstorm"
+   - 7 → "Overcast"
+   - 8 → "Mist"
+   - 9 → "Cloudy with rain"
+   - 10 → "Cloudy with rain"
+   - 11 → "Cloudy with rain/partial Thunderstorms"
+   - 12 → "Clouds/rains and thunderstorms locally"
+   - 13 → "Fog"
+
+2. TEMPERATURE - Converts Celsius to Fahrenheit:
+   - Field: temperature_fahrenheit
+   - Formula: (°C × 9/5) + 32
+   - Examples: 30°C → 86.0°F, 29°C → 84.2°F
+
+3. WIND SPEED - Converts m/s to mph:
+   - Field: wind_speed_mph
+   - Formula: m/s × 2.237
+   - Examples: 7.0m/s → 15.7mph, 6.5m/s → 14.5mph
+
 NOTE ON ODDS DATA STRUCTURE:
 ---------------------------
 The odds data from the API is structured as an ARRAY OF ARRAYS (nested array/2D array).
@@ -111,7 +140,7 @@ Step 2 filters the odds data to only keep entries from the early minutes of each
   where company_id is the betting company (e.g., "2", "4", "5", etc.)
   and odds_type is one of: "asia" (spread), "bs" (over/under), "eu" (moneyline), or "cr"
 - Each odds array contains 8 elements: [timestamp, minute, odds1, odds2, odds3, int1, int2, score]
-- Only keeps odds from minutes 2, 3, 4, 5, and 6 (filters out minute 1 and anything after minute 6)
+- Only keeps odds from minutes 2-6 (filters out minute 1 and anything after minute 6)
 - The minute value is found in the second position of each odds array (index 1)
 - If there are multiple odds updates within the same minute, only the most recent one is kept
   (determined by the highest timestamp in the first position)
@@ -299,6 +328,23 @@ BETTING_COMPANIES = {
     "22": "Pinnacle"
 }
 
+# Weather ID to description mapping
+WEATHER_DESCRIPTIONS = {
+    1: "Partially cloudy",
+    2: "Cloudy",
+    3: "Partially cloudy/rain",
+    4: "Snow",
+    5: "Sunny",
+    6: "Overcast Rain/partial thunderstorm",
+    7: "Overcast",
+    8: "Mist",
+    9: "Cloudy with rain",
+    10: "Cloudy with rain",
+    11: "Cloudy with rain/partial Thunderstorms",
+    12: "Clouds/rains and thunderstorms locally",
+    13: "Fog"
+}
+
 # Preferred order for betting company selection (BET365 first)
 PREFERRED_COMPANIES = ["2", "3", "4", "5", "6", "9", "10", "11", "13", "14", "15", "16", "17", "21", "22"]
 
@@ -343,14 +389,54 @@ def extract_odds(match: dict) -> dict:
     return odds_data
 
 def extract_environment(match: dict) -> dict:
-    """Extract environment/weather data from match."""
+    """Extract environment/weather data from match with temperature and wind conversions."""
     env = match.get("environment", {})
     if isinstance(env, dict):
+        # Extract raw values
+        temperature_str = env.get("temperature", "")
+        wind_str = env.get("wind", "")  # Field is "wind" not "wind_speed" in the data
+        
+        # Initialize converted values
+        temperature_fahrenheit = ""
+        wind_mph = ""
+        
+        # Convert temperature from Celsius to Fahrenheit
+        if temperature_str and "°C" in temperature_str:
+            try:
+                # Extract numeric value (e.g., "30°C" -> 30)
+                temp_celsius = float(temperature_str.replace("°C", "").strip())
+                temp_fahrenheit = (temp_celsius * 9/5) + 32
+                temperature_fahrenheit = f"{temp_fahrenheit:.1f}°F"
+            except (ValueError, AttributeError):
+                temperature_fahrenheit = ""
+        
+        # Convert wind speed from m/s to mph
+        if wind_str and "m/s" in wind_str:
+            try:
+                # Extract numeric value (e.g., "7.0m/s" -> 7.0)
+                wind_ms = float(wind_str.replace("m/s", "").strip())
+                wind_mph_value = wind_ms * 2.237
+                wind_mph = f"{wind_mph_value:.1f}mph"
+            except (ValueError, AttributeError):
+                wind_mph = ""
+        
+        # Convert weather ID to description
+        weather_id = env.get("weather", "")
+        weather_description = ""
+        if weather_id:
+            try:
+                weather_description = WEATHER_DESCRIPTIONS.get(int(weather_id), f"Unknown weather ID: {weather_id}")
+            except (ValueError, TypeError):
+                weather_description = f"Invalid weather ID: {weather_id}"
+        
         return {
-            "weather": env.get("weather", ""),
-            "temperature": env.get("temperature", ""),
+            "weather": weather_id,
+            "weather_description": weather_description,
+            "temperature": temperature_str,
+            "temperature_fahrenheit": temperature_fahrenheit,
             "humidity": env.get("humidity", ""),
-            "wind_speed": env.get("wind", ""),  # Field is "wind" not "wind_speed" in the data
+            "wind_speed": wind_str,
+            "wind_speed_mph": wind_mph,
             "pressure": env.get("pressure", "")
         }
     return {}
