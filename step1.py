@@ -1,22 +1,5 @@
 #!/usr/bin/env python3
 """
-🚨 WARNING FOR FUTURE AI CODING AGENTS 🚨
-==========================================
-DO NOT CREATE DUPLICATE SUMMARY KEYS IN JSON OUTPUTS!
-THIS PROJECT SUFFERED FROM "KEY UNIFORMITY PROBLEMS":
-
-❌ NEVER CREATE: step1_completion_summary, step1_detailed_summary, step2_completion_summary, etc.
-✅ ALWAYS USE: Single standardized "completion_summary" key across ALL JSON outputs
-✅ USE SHARED: create_completion_summary() function from step1.py
-
-KEY UNIFORMITY PROBLEM TERMS:
-- "Duplicate Summary Keys" - Multiple different key names for the same purpose  
-- "Legacy Summary Key Structures" - Old inconsistent naming patterns
-- "completion_summary Standardization" - Ensuring all files use the same key structure
-
-THIS IS THE BIGGEST PROBLEM WITH AI CODING AGENTS - AVOID RECREATING THIS ISSUE!
-==================================================================================
-
 STEP 1 – DATA FETCHER (COMPREHENSIVE USAGE AND LOCKING)
 ======================================================
 
@@ -24,20 +7,6 @@ PURPOSE:
 --------
 Fetches live football match data from TheSports API and stores it as JSON.
 This is the first step in a football data pipeline.
-
-LOGGING AND OUTPUT FILES:
-------------------------
-- **LOG FILE**: step1.log (all execution logs and debug information, rotated daily)
-- **JSON OUTPUT**: step1.json (live match data with standardized completion_summary)
-- **COUNTER FILE**: daily_match_counter.json (daily match tracking)
-
-CURRENT LOGGER IMPLEMENTATION:
------------------------------
-- **INDEPENDENT LOGGING**: Each step manages its own logging (no centralized logger)
-- **STEP1 LOGGING**: Uses TimedRotatingFileHandler → step1.log + console output
-- **LOG SUMMARY**: Printed to console AFTER JSON dump (not included in JSON)
-- **JSON STRUCTURE**: Single standardized "completion_summary" as last element
-- **NO DUPLICATES**: Removed all legacy summary keys and duplicate functions
 
 CRITICAL USAGE NOTES:
 --------------------
@@ -48,7 +17,7 @@ CRITICAL USAGE NOTES:
 
 STARTUP METHODS:
 ---------------
-1. Direct: python3 step1.py
+1. Direct: python3 step1_json.py
 2. Via script: bash start.sh (includes logging and background execution)
 3. Via cron/systemd: Ensure proper working directory and environment
 
@@ -71,14 +40,19 @@ LOCKING MECHANISM:
 
 FILES GENERATED:
 ---------------
-- step1.json: Main output with live match data and standardized completion_summary
+- step1.json: Main output with live match data
 - daily_match_counter.json: Historical tracking data
-- step1.log: Execution logs (rotated daily with TimedRotatingFileHandler)
+- step1.log: Execution logs (rotated daily)
 - step1.pid: Process lock file
+
+FIELD CLARIFICATIONS:
+--------------------
+- total_entries: Number of days in history (recommend renaming to history_length)
+- latest_match_count: Matches found in current run (recommend renaming to current_match_count)
 
 ERROR HANDLING:
 --------------
-- API failures logged and handled gracefully with mock data fallback
+- API failures logged and handled gracefully
 - Network timeouts with configurable retries
 - File I/O errors logged with stack traces
 - Missing environment variables cause early exit
@@ -90,16 +64,11 @@ ENVIRONMENT REQUIREMENTS:
 - Write permissions in current directory
 - Network access to TheSports API
 
-RECENT CLEANUP (CURRENT STATE):
-------------------------------
-- ✅ Removed duplicate create_completion_summary() function
-- ✅ Removed legacy get_ny_time() function  
-- ✅ Updated update_step2_pipeline_timing() to work with current JSON structure
-- ✅ Standardized completion_summary across all JSON outputs
-- ✅ Added log summaries that print AFTER JSON dumps (not included in JSON)
-- ✅ Removed all centralized logging infrastructure
-- ✅ Each step now has independent, specific logging
-"""
+INTEGRATION WITH STEP 2:
+-----------------------
+Step 2 (step2.py) is now automatically triggered after data is saved to step1.json.
+The in-memory data is passed directly to extract_merge_summarize() for immediate processing.
+This creates step2.json without requiring separate manual execution.
 """
 
 import asyncio
@@ -124,6 +93,24 @@ from dotenv import load_dotenv
 import step2
 import step7
 from pathlib import Path
+
+# Import centralized logging
+try:
+    from centralized_logger.log_config import (
+        initialize_global_logging_for_step,
+        apply_global_format_to_logger,
+        central_logging_hub
+    )
+    CENTRALIZED_LOGGING_AVAILABLE = True
+except ImportError:
+    # Fallback if centralized logger not available
+    def initialize_global_logging_for_step(*args, **kwargs):
+        return {}
+    def apply_global_format_to_logger(logger, *args, **kwargs):
+        return logger
+    def central_logging_hub(*args, **kwargs):
+        pass
+    CENTRALIZED_LOGGING_AVAILABLE = False
 
 # Load environment variables
 load_dotenv()
@@ -278,12 +265,36 @@ def signal_handler(signum, frame):
     shutdown_flag = True
 
 def create_pid_file():
-    """PID file management is handled by start.sh - this function is now a no-op"""
-    logger.info("PID file management delegated to start.sh")
+    """Create PID file to prevent concurrent execution"""
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE, 'r') as f:
+                existing_pid = int(f.read().strip())
+            
+            # Check if process is still running
+            try:
+                os.kill(existing_pid, 0)
+                logger.error(f"Another instance is already running (PID: {existing_pid})")
+                sys.exit(1)
+            except OSError:
+                # Process doesn't exist, remove stale PID file
+                os.remove(PID_FILE)
+                logger.info("Removed stale PID file")
+        except (ValueError, IOError):
+            # Invalid PID file, remove it
+            os.remove(PID_FILE)
+            logger.info("Removed invalid PID file")
+    
+    # Create new PID file
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+    logger.info(f"Created PID file: {PID_FILE}")
 
 def remove_pid_file():
-    """PID file management is handled by start.sh - this function is now a no-op"""
-    logger.info("PID file cleanup delegated to start.sh")
+    """Remove PID file on exit"""
+    if os.path.exists(PID_FILE):
+        os.remove(PID_FILE)
+        logger.info(f"Removed PID file: {PID_FILE}")
 
 @contextmanager
 def pid_lock():
@@ -535,10 +546,21 @@ def step1_main():
     pipeline_start_time = datetime.now()
     
     # ============================================================================
-    # SIMPLIFIED LOGGING SETUP
+    # PHASE 1: GET GLOBAL RULES BEFORE OWN LOGGING
+    # ============================================================================
+    global_config = {}
+    if CENTRALIZED_LOGGING_AVAILABLE:
+        global_config = initialize_global_logging_for_step("step1")
+    
+    # ============================================================================
+    # PHASE 2: SETUP OWN LOGGING WITH GLOBAL FORMAT
     # ============================================================================
     global logger
-    logger.info("Step 1 logger configured with simplified logging")
+    if CENTRALIZED_LOGGING_AVAILABLE:
+        logger = apply_global_format_to_logger(logger, "step1")
+        logger.info(f"Step 1 logger configured with global Eastern Time rules - {global_config.get('current_timestamp', 'N/A')}")
+    else:
+        logger.info("Step 1 logger configured (centralized logging not available)")
     # ============================================================================
     
     # Get daily match counter
@@ -582,7 +604,7 @@ def step1_main():
     footer = create_comprehensive_footer(live_data, all_data, total_duration, match_number, ny_time, pipeline_complete=False, total_pipeline_time=None)
     
     # Add footer to JSON data
-    all_data["completion_summary"] = footer
+    all_data["step1_completion_summary"] = footer
     
     # Log comprehensive footer to step1.log (exact format match)
     logger.info("="*80)
@@ -595,52 +617,58 @@ def step1_main():
     logger.info(f"Total pipeline time: {footer['total_pipeline_time']}")
     logger.info("="*80)
 
+    # ========================================================================
+    # CENTRALIZED LOGGING - Call step1-2_logging.py for summary generation
+    # ========================================================================
+    if CENTRALIZED_LOGGING_AVAILABLE:
+        try:
+            # Prepare step1 specific data for summary generation
+            step_data = {
+                "step_name": "step1",
+                "live_data": live_data,
+                "all_data": all_data,
+                "total_duration": total_duration,
+                "match_number": match_number,
+                "ny_time": ny_time
+            }
+            
+            # Prepare execution data similar to step2
+            execution_data = {
+                "execution_time": total_duration,
+                "files_created": ["step1.json"],
+                "records_processed": len(matches),
+                "pipeline_start_time": pipeline_start_time.isoformat(),
+                "matches_fetched": len(matches),
+                "processing_metadata": {
+                    "is_mock": live_data.get("_mock", False),
+                    "api_code": live_data.get("code", "Unknown")
+                },
+                "step_data": step_data
+            }
+            
+            central_logging_hub(
+                "step1",
+                "post_logging",
+                "success",
+                f"Step 1 completed - {len(matches)} matches fetched",
+                source="step1",
+                **execution_data
+            )
+        except Exception as central_log_error:
+            logger.warning(f"Centralized logging failed: {central_log_error}")
+    # ========================================================================
+
     return all_data
 
-def save_to_json(data, filename, add_completion_summary=False, match_number=None, total_duration=None, match_count=None, in_play_count=None):
-    """Save data to a JSON file with standardized completion_summary"""
-    
-    # Create a copy to avoid modifying the original data  
-    data_copy = data.copy() if isinstance(data, dict) else data
-    
-    # Add standardized completion summary if requested
-    if add_completion_summary and filename == "step1.json":
-        completion_summary = create_completion_summary(
-            step_name="DATA FETCH",
-            step_number=1, 
-            matches_count=match_count or 0,
-            in_play_count=in_play_count or 0,
-            processing_time=total_duration or 0.0,
-            daily_number=match_number or "N/A",
-            endpoint_type="matches"
-        )
-        
-        # Add summary as the very last element
-        if isinstance(data_copy, dict):
-            data_copy["completion_summary"] = completion_summary
-    
+def save_to_json(data, filename):
+    """Save data to a JSON file with pretty printing"""
     with open(filename, 'w') as f:
-        json.dump(data_copy, f, indent=2)
+        json.dump(data, f, indent=2)
     print(f"Data saved to {filename}")
-    
-    # Print log summary AFTER JSON dump (not included in JSON)
-    if add_completion_summary and filename == "step1.json":
-        print_step1_log_summary(match_count, in_play_count, total_duration, match_number)
 
-def print_step1_log_summary(match_count, in_play_count, total_duration, match_number):
-    """Print step1 log summary after JSON dump (not included in JSON)"""
-    print("\n" + "="*60)
-    print("STEP 1 EXECUTION SUMMARY")
-    print("="*60)
-    print(f"Total matches fetched: {match_count}")
-    print(f"In-play matches: {in_play_count} (status IDs 2-7)")
-    print(f"Other status matches: {match_count - in_play_count} (status IDs 0,1,8+)")
-    print(f"Processing time: {total_duration:.2f}s")
-    print(f"Daily match number: {match_number}")
-    print(f"JSON output: step1.json")
-    print(f"Log file: step1.log")
-    print(f"Timestamp: {get_ny_time_str()}")
-    print("="*60)
+def get_ny_time():
+    """Get current time in New York timezone - legacy function"""
+    return get_ny_time_str('%m/%d/%Y %I:%M:%S %p')
 
 def create_unified_status_summary(live_matches_data):
     """Unified function to create comprehensive status summary and counts"""
@@ -1012,13 +1040,8 @@ def continuous_loop():
             logger.info(f"In-Play matches: {in_play_count} (status 2–7)")
             logger.info("="*80)
 
-            # Save the raw data to step1.json with completion summary
-            save_to_json(all_data, "step1.json", 
-                        add_completion_summary=True, 
-                        match_number=match_number, 
-                        total_duration=total_duration,
-                        match_count=len(live_data.get('results', [])),
-                        in_play_count=in_play_count)
+            # Save the raw data to step1.json
+            save_to_json(all_data, "step1.json")
             
             # ─── Step 2: Merge + Flatten → step2.json ───────────────────────────────
             logger.info("Starting Step 2 (merge + flatten)...")
@@ -1038,7 +1061,7 @@ def continuous_loop():
             logger.info("Starting Step 7 (filter & pretty-print)...")
             start_s7 = time.time()
             try:
-                step7.run_step7(matches_list=summaries if summaries else None)
+                step7.run_step7(summaries_list=summaries if summaries else None)
                 s7_time = time.time() - start_s7
                 logger.info(f"STEP 7 – run_step7: {s7_time:.2f}s")
                 
@@ -1095,20 +1118,11 @@ def run_single_cycle():
         
         # Step 1: Fetch data with detailed timing
         print("Running Step 1 with detailed timing...")
-        step1_start = time.time()
         result = step1_main()
-        step1_duration = time.time() - step1_start
         
         # Get match count for console output
         match_count = len(result.get('live_matches', {}).get('results', []))
         print(f"Step 1: Fetched data with {match_count} matches")
-        
-        # Calculate in-play matches for footer
-        matches = result.get('live_matches', {}).get('results', [])
-        in_play_count = sum(1 for m in matches if extract_status_id(m) in [2,3,4,5,6,7])
-        
-        # Get daily match counter
-        match_number = get_daily_match_counter()
         
         # Generate comprehensive summaries
         unified_summary = create_unified_status_summary(result.get("live_matches", {}))
@@ -1121,13 +1135,8 @@ def run_single_cycle():
         result["detailed_status_mapping"] = detailed_status_mapping
         result["comprehensive_match_breakdown"] = comprehensive_match_breakdown
         
-        # Save to step1.json with completion summary
-        save_to_json(result, 'step1.json',
-                    add_completion_summary=True,
-                    match_number=match_number,
-                    total_duration=step1_duration,
-                    match_count=match_count,
-                    in_play_count=in_play_count)
+        # Save to step1.json
+        save_to_json(result, 'step1.json')
         
         # Step 2: Process and flatten with timing
         start_s2 = time.time()
@@ -1137,7 +1146,7 @@ def run_single_cycle():
         
         # Step 7: Filter and display with timing
         start_s7 = time.time()
-        step7.run_step7(matches_list=summaries)
+        step7.run_step7(summaries_list=summaries)
         s7_time = time.time() - start_s7
         
         # Calculate total pipeline time from Step 1 to Step 7 completion
@@ -1186,15 +1195,13 @@ def update_step2_pipeline_timing(total_pipeline_time: float):
             with open(step2_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            # Update only the standardized completion_summary with pipeline timing
-            if "completion_summary" in data:
-                data["completion_summary"]["total_pipeline_time"] = f"{total_pipeline_time:.2f} seconds"
-                data["completion_summary"]["completion_status"] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {datetime.now(pytz.timezone('America/New_York')).strftime('%m/%d/%Y %I:%M:%S %p %Z')}"
-            
-            # Remove any legacy step2_detailed_summary that might have been added
-            if "step2_detailed_summary" in data:
-                del data["step2_detailed_summary"]
-                logger.info("Removed legacy step2_detailed_summary for consistency")
+            # Update the pipeline timing in the summary section
+            if "step2_processing_summary" in data:
+                data["step2_processing_summary"]["pipeline_timing"]["total_pipeline_time"] = f"{total_pipeline_time:.2f} seconds"
+                data["step2_processing_summary"]["total_pipeline_time"] = f"{total_pipeline_time:.2f} seconds"
+                
+                # Also update the footer section
+                data["step2_processing_summary"]["completion_status"] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {datetime.now(pytz.timezone('America/New_York')).strftime('%m/%d/%Y %I:%M:%S %p %Z')}"
             
             # Save updated data
             with open(step2_file, "w", encoding="utf-8") as f:
@@ -1217,10 +1224,17 @@ def update_step1_pipeline_timing(total_pipeline_time: float):
             with open(step1_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            # Update only the main completion_summary with pipeline timing
-            if "completion_summary" in data:
-                data["completion_summary"]["total_pipeline_time"] = f"{total_pipeline_time:.2f} seconds"
-                data["completion_summary"]["completion_status"] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {datetime.now(pytz.timezone('America/New_York')).strftime('%m/%d/%Y %I:%M:%S %p %Z')}"
+            # Update the pipeline timing in the completion summary section
+            if "step1_completion_summary" in data:
+                data["step1_completion_summary"]["total_pipeline_time"] = f"{total_pipeline_time:.2f} seconds"
+                
+                # Update completion status to show full pipeline completion
+                data["step1_completion_summary"]["completion_status"] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {datetime.now(pytz.timezone('America/New_York')).strftime('%m/%d/%Y %I:%M:%S %p %Z')}"
+            
+            # Also update the step1_detailed_summary if it exists (from centralized logging)
+            if "step1_detailed_summary" in data and "completion_summary" in data["step1_detailed_summary"]:
+                data["step1_detailed_summary"]["completion_summary"]["total_pipeline_time"] = f"{total_pipeline_time:.2f}s"
+                data["step1_detailed_summary"]["completion_summary"]["status"] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {datetime.now(pytz.timezone('America/New_York')).strftime('%m/%d/%Y %I:%M:%S %p %Z')}"
             
             # Save updated data
             with open(step1_file, "w", encoding="utf-8") as f:
@@ -1328,11 +1342,11 @@ def update_step1_footer_after_pipeline(step1_json_path, total_pipeline_time):
         with open(step1_json_path, 'r') as f:
             data = json.load(f)
         
-        if 'completion_summary' in data:
+        if 'step1_completion_summary' in data:
             # Update completion status to show full pipeline completion
             ny_time = get_ny_time_str()
-            data['completion_summary']['completion_status'] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {ny_time}"
-            data['completion_summary']['total_pipeline_time'] = f"{total_pipeline_time:.2f} seconds"
+            data['step1_completion_summary']['completion_status'] = f"COMPLETE PIPELINE (Step 1→7) – FINISHED SUCCESSFULLY – {ny_time}"
+            data['step1_completion_summary']['total_pipeline_time'] = f"{total_pipeline_time:.2f} seconds"
             
             # Save updated JSON
             with open(step1_json_path, 'w') as f:
@@ -1345,67 +1359,6 @@ def update_step1_footer_after_pipeline(step1_json_path, total_pipeline_time):
         return False
     
     return False
-
-# ==============================================================================
-# CENTRALIZED COMPLETION SUMMARY - Standardized for all JSON files
-# ==============================================================================
-
-def create_completion_summary(step_name, step_number, matches_count=0, in_play_count=0, 
-                            processing_time=0.0, daily_number="N/A", endpoint_type="matches"):
-    """
-    Standardized completion_summary for all JSON files (step1.json, step2.json, etc.)
-    
-    Args:
-        step_name: Human readable step name (e.g., "DATA FETCH", "MERGE/FLATTEN")
-        step_number: Step number (1, 2, 7, etc.)
-        matches_count: Total matches/summaries processed
-        in_play_count: Count of status IDs 2-7
-        processing_time: Time taken for processing
-        daily_number: Daily processing number
-        endpoint_type: Type of data (e.g., "matches", "summaries", "endpoints")
-    """
-    ny_time = get_ny_time_str()
-    other_count = matches_count - in_play_count
-    
-    return {
-        "status": f"STEP {step_number} - {step_name} COMPLETED SUCCESSFULLY - {ny_time}",
-        "daily_processing_number": str(daily_number),
-        "total_{}_created".format(endpoint_type): f"{matches_count} {endpoint_type} (from Step {step_number} processing)",
-        "in_play_{}".format(endpoint_type): f"{in_play_count} (status IDs 2–7)",
-        "other_status_{}".format(endpoint_type): f"{other_count} (status IDs 0,1,8,9,10,11,12,13)",
-        f"step{step_number}_processing_time": f"{processing_time:.2f}s"
-    }
-
-# ==============================================================================
-# PIPELINE SUMMARY - Separate logging system for pipeline-wide tracking  
-# ==============================================================================
-
-def log_pipeline_summary(step_name, action, duration, total_pipeline_time=None, 
-                        matches_processed=0, status="SUCCESS"):
-    """
-    Pipeline summary logging - goes to log files, tracks entire pipeline
-    
-    Args:
-        step_name: Current step being logged
-        action: Action description 
-        duration: Time for this step
-        total_pipeline_time: Total time since pipeline start
-        matches_processed: Number of matches processed
-        status: SUCCESS/ERROR/RUNNING
-    """
-    ny_time = get_ny_time_str()
-    pipeline_msg = f"[{status}] {step_name} - {action} | {duration:.2f}s"
-    if total_pipeline_time:
-        pipeline_msg += f" | Total Pipeline: {total_pipeline_time:.2f}s"
-    if matches_processed > 0:
-        pipeline_msg += f" | Matches: {matches_processed}"
-    pipeline_msg += f" | {ny_time}"
-    
-    # Log to both console and file
-    print(f"🔄 PIPELINE: {pipeline_msg}")
-    logging.info(f"PIPELINE_SUMMARY: {pipeline_msg}")
-
-# Centralized logging removed - using simplified approach
 
 if __name__ == "__main__":
     import argparse
