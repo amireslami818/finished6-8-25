@@ -1,0 +1,282 @@
+{
+  "./test_pipeline_flow.py::now": [
+    "./test_api_rate_limits.py:28:    print(f"⏰ Current time: {datetime.now()}")"
+    "./test_api_rate_limits.py:69:                    'timestamp': datetime.now().isoformat(),"
+    "./test_api_rate_limits.py:138:                    'timestamp': datetime.now().isoformat()"
+    "./test_api_rate_limits.py:146:                    'timestamp': datetime.now().isoformat()"
+    "./test_api_rate_limits.py:155:                    'timestamp': datetime.now().isoformat()"
+  ]
+,
+  "./test_pipeline_flow.py::wait_for_file": [
+    "./venv/lib/python3.12/site-packages/psutil/tests/__init__.py:92:    'call_until', 'wait_for_pid', 'wait_for_file',"
+    "./venv/lib/python3.12/site-packages/psutil/tests/__init__.py:370:            wait_for_file(testfn, delete=True, empty=True)"
+    "./venv/lib/python3.12/site-packages/psutil/tests/__init__.py:409:        grandchild_pid = int(wait_for_file(testfn, delete=True, empty=False))"
+    "./venv/lib/python3.12/site-packages/psutil/tests/__init__.py:741:def wait_for_file(fname, delete=True, empty=False):"
+    "./venv/lib/python3.12/site-packages/psutil/tests/test_connections.py:43:from psutil.tests import wait_for_file"
+  ]
+,
+  "./test_pipeline_flow.py::main": [
+    "./test_api_rate_limits.py:250:if __name__ == "__main__":"
+    "./test_endpoints.py:107:if __name__ == "__main__":"
+    "./user_interaction_logger.py:149:def main():"
+    "./user_interaction_logger.py:172:if __name__ == "__main__":"
+    "./user_interaction_logger.py:173:    main()"
+  ]
+,
+  "./user_interaction_logger.py::main": [
+    "./test_api_rate_limits.py:250:if __name__ == "__main__":"
+    "./test_pipeline_flow.py:48:def main():"
+    "./test_pipeline_flow.py:171:if __name__ == "__main__":"
+    "./test_pipeline_flow.py:172:    main()"
+    "./test_endpoints.py:107:if __name__ == "__main__":"
+  ]
+,
+  "./log_interaction.py::main": [
+    "./test_api_rate_limits.py:250:if __name__ == "__main__":"
+    "./test_pipeline_flow.py:48:def main():"
+    "./test_pipeline_flow.py:171:if __name__ == "__main__":"
+    "./test_pipeline_flow.py:172:    main()"
+    "./test_endpoints.py:107:if __name__ == "__main__":"
+  ]
+,
+  "./step27.py::get_eastern_time": [
+    "./step7.py:25:def get_eastern_time() -> str:"
+    "./step7.py:192:        f"Filter Time: {get_eastern_time()}\n""
+    "./step7.py:211:        f"Summary Time: {get_eastern_time()}\n""
+    "./step7.py:366:        generated_at = last_batch.get("timestamp", get_eastern_time())"
+    "./step7.py:370:        generated_at = get_eastern_time()"
+  ]
+,
+  "./step27.py::extract_summary_fields": [
+    "./step2.py:37:def extract_summary_fields(match: dict) -> dict:"
+    "./step2.py:150:        summary = extract_summary_fields(match)"
+  ]
+,
+  "./step27.py::extract_odds": [
+    "./step2.py:83:def extract_odds(match: dict) -> dict:"
+    "./step2.py:151:        summary["odds"] = extract_odds(match)"
+  ]
+,
+  "./step27.py::extract_environment": [
+    "./step2.py:114:def extract_environment(match: dict) -> dict:"
+    "./step2.py:152:        summary["environment"] = extract_environment(match)"
+  ]
+,
+  "./step27.py::extract_events": [
+    "./step2.py:125:def extract_events(match: dict) -> list:"
+    "./step2.py:153:        summary["events"] = extract_events(match)"
+  ]
+,
+  "./step27.py::save_match_summaries": [
+    "./step2.py:174:def save_match_summaries(summaries_data: dict, output_file: str = "step2.json") -> bool:"
+    "./step2.py:248:        success = save_match_summaries(merged_data, str(STEP2_JSON))"
+  ]
+,
+  "./step27.py::merge_and_summarize": [
+    "./step2.py:142:def merge_and_summarize(live_data: dict, payload_data: dict) -> dict:"
+    "./step2.py:241:        merged_data = merge_and_summarize(live_matches, payload_data)"
+  ]
+,
+  "./step27.py::setup_logger": [
+    "./step7.py:53:def setup_logger() -> logging.Logger:"
+    "./step7.py:68:match_logger = setup_logger()"
+  ]
+,
+  "./step27.py::log_and_print": [
+    "./step7.py:71:def log_and_print(message: str):"
+    "./step7.py:250:    log_and_print(header)"
+    "./step7.py:418:            log_and_print(line)"
+    "./step7.py:422:            log_and_print(odds_text)"
+    "./step7.py:426:            log_and_print(env_text)"
+  ]
+,
+  "./step27.py::get_daily_fetch_count": [
+    "./step7.py:81:def get_daily_fetch_count() -> int:"
+    "./step7.py:379:    fetch_count = get_daily_fetch_count()"
+  ]
+,
+  "./step27.py::get_status_description": [
+    "./step7.py:30:def get_status_description(status_id: int) -> str:"
+    "./step7.py:230:            desc = get_status_description(status_id)"
+  ]
+,
+  "./step27.py::sort_matches_by_competition_and_time": [
+    "./integration_test.py:9:from step27 import extract_merge_summarize, sort_matches_by_competition_and_time"
+    "./integration_test.py:100:    groups = sort_matches_by_competition_and_time(data2['matches'])"
+    "./step7.py:151:def sort_matches_by_competition_and_time(matches: dict) -> dict:"
+    "./step7.py:382:    sorted_groups = sort_matches_by_competition_and_time(filtered)"
+  ]
+,
+  "./step27.py::write_main_header": [
+    "./step7.py:187:def write_main_header(fetch_count: int, total: int, generated_at: str, pipeline_time=None):"
+    "./step7.py:385:    write_main_header(fetch_count, total, generated_at, pipeline_time=None)"
+  ]
+,
+  "./step27.py::write_main_footer": [
+    "./step7.py:206:def write_main_footer(fetch_count: int, total: int, generated_at: str, pipeline_time=None, matches=None):"
+    "./step7.py:432:    write_main_footer(fetch_count, total, generated_at, pipeline_time=None, matches=filtered)"
+  ]
+,
+  "./step27.py::write_competition_group_header": [
+    "./step7.py:239:def write_competition_group_header(competition: str, country: str, match_count: int):"
+    "./step7.py:398:        write_competition_group_header(competition, country, len(matches_list))"
+  ]
+,
+  "./step27.py::format_american_odds": [
+    "./step7.py:253:def format_american_odds(odds_value):"
+    "./step7.py:277:        home_ml = format_american_odds(full_time.get("home"))"
+    "./step7.py:278:        draw_ml = format_american_odds(full_time.get("draw"))"
+    "./step7.py:279:        away_ml = format_american_odds(full_time.get("away"))"
+    "./step7.py:287:        home_spread = format_american_odds(spread.get("home"))"
+  ]
+,
+  "./step27.py::format_betting_odds": [
+    "./step7.py:271:def format_betting_odds(match_data: dict) -> str:"
+    "./step7.py:421:            odds_text = format_betting_odds(match_data)"
+  ]
+,
+  "./step27.py::format_environment_data": [
+    "./step7.py:313:def format_environment_data(match_data: dict) -> str:"
+    "./step7.py:425:            env_text = format_environment_data(match_data)"
+  ]
+,
+  "./step27.py::infer_country_from_teams": [
+    "./step7.py:92:def infer_country_from_teams(match_data):"
+    "./step7.py:162:            country = infer_country_from_teams(match_data)"
+    "./step7.py:396:            country = infer_country_from_teams(first_match)"
+  ]
+,
+  "./step7.py::get_eastern_time": [
+    "./step27.py:29:def get_eastern_time() -> str:"
+    "./step27.py:93:        "fetched_at": get_eastern_time(),"
+    "./step27.py:278:        data["ny_timestamp"] = get_eastern_time()"
+    "./step27.py:299:            "completion_status": f"STEP 2 - FETCH COMPLETED SUCCESSFULLY - {get_eastern_time()}","
+    "./step27.py:573:        f"Filter Time: {get_eastern_time()}\n""
+  ]
+,
+  "./step7.py::get_status_description": [
+    "./step27.py:451:            status_desc = get_status_description(status_id)"
+    "./step27.py:531:def get_status_description(status_id: int) -> str:"
+    "./step27.py:609:            desc = get_status_description(status_id)"
+  ]
+,
+  "./step7.py::setup_logger": [
+    "./step27.py:496:def setup_logger() -> logging.Logger:"
+    "./step27.py:510:match_logger = setup_logger()"
+  ]
+,
+  "./step7.py::log_and_print": [
+    "./step27.py:513:def log_and_print(message: str):"
+    "./step27.py:628:    log_and_print(header)"
+  ]
+,
+  "./step7.py::get_daily_fetch_count": [
+    "./step27.py:520:def get_daily_fetch_count() -> int:"
+  ]
+,
+  "./step7.py::infer_country_from_teams": [
+    "./step27.py:551:            country = infer_country_from_teams(match_data)"
+    "./step27.py:703:def infer_country_from_teams(match_data):"
+  ]
+,
+  "./step7.py::sort_matches_by_competition_and_time": [
+    "./step27.py:539:def sort_matches_by_competition_and_time(matches: dict) -> dict:"
+    "./integration_test.py:9:from step27 import extract_merge_summarize, sort_matches_by_competition_and_time"
+    "./integration_test.py:100:    groups = sort_matches_by_competition_and_time(data2['matches'])"
+  ]
+,
+  "./step7.py::write_main_header": [
+    "./step27.py:568:def write_main_header(fetch_count: int, total: int, generated_at: str, pipeline_time=None):"
+  ]
+,
+  "./step7.py::write_main_footer": [
+    "./step27.py:586:def write_main_footer(fetch_count: int, total: int, generated_at: str, pipeline_time=None, matches=None):"
+  ]
+,
+  "./step7.py::write_competition_group_header": [
+    "./step27.py:617:def write_competition_group_header(competition: str, country: str, match_count: int):"
+  ]
+,
+  "./step7.py::format_american_odds": [
+    "./step27.py:631:def format_american_odds(odds_value):"
+    "./step27.py:653:        home_ml = format_american_odds(full_time.get('home'))"
+    "./step27.py:654:        draw_ml = format_american_odds(full_time.get('draw'))"
+    "./step27.py:655:        away_ml = format_american_odds(full_time.get('away'))"
+    "./step27.py:660:        home_spread = format_american_odds(spread.get('home'))"
+  ]
+,
+  "./step7.py::format_betting_odds": [
+    "./step27.py:649:def format_betting_odds(match_data: dict) -> str:"
+  ]
+,
+  "./step7.py::format_environment_data": [
+    "./step27.py:680:def format_environment_data(match_data: dict) -> str:"
+  ]
+,
+  "./step7.py::run_step7": [
+    "./test_pipeline.py:194:    def test_run_step7_filters_and_prints(self):"
+    "./test_pipeline.py:198:        # Capture stdout of run_step7"
+    "./test_pipeline.py:201:            step7.run_step7(summaries_list=summaries)"
+    "./test_pipeline.py:224:            step7.run_step7()  # No summaries_list parameter"
+    "./test_pipeline.py:247:            step7.run_step7(summaries_list=summaries)"
+  ]
+,
+  "./step2.py::extract_summary_fields": [
+    "./step27.py:37:def extract_summary_fields(match: dict) -> dict:"
+    "./step27.py:420:    return extract_summary_fields(merged)"
+  ]
+,
+  "./step2.py::extract_odds": [
+    "./step27.py:90:        "odds": extract_odds(match),"
+    "./step27.py:97:def extract_odds(match: dict) -> dict:"
+  ]
+,
+  "./step2.py::extract_environment": [
+    "./step27.py:91:        "environment": extract_environment(match),"
+    "./step27.py:152:def extract_environment(match: dict) -> dict:"
+  ]
+,
+  "./step2.py::extract_events": [
+    "./step27.py:92:        "events": extract_events(match),"
+    "./step27.py:183:def extract_events(match: dict) -> list:"
+  ]
+,
+  "./step2.py::merge_and_summarize": [
+    "./step27.py:347:def merge_and_summarize(live: dict, payload: dict) -> dict:"
+    "./step27.py:471:            summary = merge_and_summarize(m, data)"
+  ]
+,
+  "./step2.py::save_match_summaries": [
+    "./step27.py:223:def save_match_summaries(summaries: list, output_file: str = "step27.json") -> bool:"
+    "./step27.py:482:        if save_match_summaries(summaries):"
+  ]
+,
+  "./step2.py::run_step2": [
+    "./test_pipeline.py:150:    def test_run_step2_creates_valid_json(self):"
+    "./test_pipeline.py:152:        summaries = step2.run_step2()"
+    "./test_pipeline.py:196:        summaries = step2.run_step2()"
+    "./test_pipeline.py:219:        step2.run_step2()"
+    "./test_pipeline.py:240:        summaries = step2.run_step2()"
+  ]
+,
+  "./step2.py::main": [
+    "./test_api_rate_limits.py:250:if __name__ == "__main__":"
+    "./test_pipeline_flow.py:48:def main():"
+    "./test_pipeline_flow.py:171:if __name__ == "__main__":"
+    "./test_pipeline_flow.py:172:    main()"
+    "./test_endpoints.py:107:if __name__ == "__main__":"
+  ]
+,
+  "./step1.py::signal_handler": [
+    "./venv/lib/python3.12/site-packages/aiohttp/worker.py:163:        self.loop.add_signal_handler("
+    "./venv/lib/python3.12/site-packages/aiohttp/worker.py:167:        self.loop.add_signal_handler("
+    "./venv/lib/python3.12/site-packages/aiohttp/worker.py:171:        self.loop.add_signal_handler("
+    "./venv/lib/python3.12/site-packages/aiohttp/worker.py:175:        self.loop.add_signal_handler("
+    "./venv/lib/python3.12/site-packages/aiohttp/worker.py:179:        self.loop.add_signal_handler("
+  ]
+,
+  "./step1.py::step1_main": [
+    "./integration_test.py:8:from step1 import step1_main"
+    "./integration_test.py:16:    data1 = step1_main()"
+  ]
+}
