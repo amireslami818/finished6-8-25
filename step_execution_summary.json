@@ -1,0 +1,309 @@
+{
+  "step1_executions": 12,
+  "step2_executions": 243,
+  "last_step1_time": "06/08/2025 03:15:26 AM EDT",
+  "last_step2_time": "06/08/2025 07:06:46 AM EDT",
+  "total_errors": 0,
+  "recent_activity": [
+    {
+      "timestamp": "06/08/2025 06:17:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 46 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:18:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 47 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:19:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 46 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:20:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 44 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:21:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 44 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:22:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 44 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:23:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 44 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:24:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 44 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:25:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:26:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 39 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:27:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 39 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:28:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:29:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:30:47 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:31:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 46 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:32:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 45 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:33:48 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 43 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:34:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:35:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:36:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:37:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:38:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 39 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:39:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 39 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:40:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 38 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:41:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 35 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:42:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 36 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:43:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 37 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:44:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 37 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:45:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 37 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:46:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 38 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:47:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:48:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:49:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:50:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 43 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:51:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 43 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:52:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:53:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 42 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:54:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:55:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:56:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 40 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:57:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 37 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:58:45 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 37 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 06:59:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 38 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:00:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 35 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:01:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 41 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:02:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 45 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:03:47 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 47 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:04:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 49 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:05:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 50 summaries created"
+    },
+    {
+      "timestamp": "06/08/2025 07:06:46 AM EDT",
+      "source": "step2",
+      "type": "SUCCESS",
+      "message": "Step 2 merge/flatten completed - 51 summaries created"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "total_matches": 96,
+  "first_5_matches": [
+    {
+      "match_id": "dn1m1gh2wv4gmoe",
+      "home": "Skjervoy",
+      "away": "Frigg",
+      "home_id": "9dn1m1gh62lmoep",
+      "away_id": "p3glrw7h8okqdyj",
+      "score": "0-0",
+      "status_id": 2,
+      "competition": "Norwegian 3.Divisjon",
+      "competition_id": "56ypq3nhz63md7o",
+      "country": "Norway",
+      "match_time": 1749389400,
+      "kickoff": "",
+      "venue": "",
+      "home_position": "",
+      "away_position": "",
+      "odds": {},
+      "environment": {
+        "weather": "",
+        "temperature": "",
+        "humidity": "",
+        "wind_speed": "",
+        "pressure": ""
+      },
+      "events": []
+    },
+    {
+      "match_id": "l5ergph4ow4jr8k",
+      "home": "Club Atletico Progreso",
+      "away": "Miramar Misiones FC",
+      "home_id": "vjxm8ghg6g0r6od",
+      "away_id": "p3glrw7hv1wqdyj",
+      "score": "0-0",
+      "status_id": 2,
+      "competition": "Uruguay Primera Division",
+      "competition_id": "v2y8m4zhydql074",
+      "country": "Uruguay",
+      "match_time": 1749389400,
+      "kickoff": "",
+      "venue": "",
+      "home_position": "",
+      "away_position": "",
+      "odds": {},
+      "environment": {
+        "weather": "",
+        "temperature": "",
+        "humidity": "",
+        "wind_speed": "",
+        "pressure": ""
+      },
+      "events": []
+    },
+    {
+      "match_id": "vjxm8ghe4y8kr6o",
+      "home": "WIT Georgia Tbilisi",
+      "away": "Gerda Barney",
+      "home_id": "gx7lm7phlzym2wd",
+      "away_id": "4wyrn4hewn7q86p",
+      "score": "0-0",
+      "status_id": 2,
+      "competition": "Georgia Erovnuli Liga 3",
+      "competition_id": "z318q66hjzgqo9j",
+      "country": "Georgia",
+      "match_time": 1749388800,
+      "kickoff": "",
+      "venue": "",
+      "home_position": "",
+      "away_position": "",
+      "odds": {},
+      "environment": {
+        "weather": "",
+        "temperature": "",
+        "humidity": "",
+        "wind_speed": "",
+        "pressure": ""
+      },
+      "events": []
+    },
+    {
+      "match_id": "l7oqdehgyo59r51",
+      "home": "VIFK",
+      "away": "OsPa",
+      "home_id": "4zp5rzghkelq82w",
+      "away_id": "4wyrn4h421eq86p",
+      "score": "0-0",
+      "status_id": 3,
+      "competition": "Finnish Ykkonen",
+      "competition_id": "gpxwrxlh7zryk0j",
+      "country": "Finland",
+      "match_time": 1749387600,
+      "kickoff": "",
+      "venue": "",
+      "home_position": "",
+      "away_position": "",
+      "odds": {},
+      "environment": {
+        "weather": "",
+        "temperature": "",
+        "humidity": "",
+        "wind_speed": "",
+        "pressure": ""
+      },
+      "events": []
+    },
+    {
+      "match_id": "dj2ryohlk8j5q1z",
+      "home": "Brasiliense U20",
+      "away": "Candango EC U20",
+      "home_id": "965mkyhnov6r1ge",
+      "away_id": "4jwq2gh1pn5m0ve",
+      "score": "0-0",
+      "status_id": 2,
+      "competition": "Brazilian Youth Championship",
+      "competition_id": "kn54qllhjzwqvy9",
+      "country": "Brazil",
+      "match_time": 1749387600,
+      "kickoff": "",
+      "venue": "",
+      "home_position": "",
+      "away_position": "",
+      "odds": {},
+      "environment": {
+        "weather": "",
+        "temperature": "",
+        "humidity": "",
+        "wind_speed": "",
+        "pressure": ""
+      },
+      "events": []
+    }
+  ],
+  "metadata": {
+    "total_matches": 96,
+    "timestamp": "2025-06-08T10:21:00.615826-04:00",
+    "source": "step2.py",
+    "processing_time": "0.27 seconds"
+  }
+}
